@@ -67,7 +67,7 @@ export default function PostList({ initialPosts }: PostListProps) {
               {/* Vote Section */}
               <div className="flex flex-col items-center py-2 px-2 bg-[#161617] rounded-l min-w-[40px]">
                 <button 
-                  className="vote-arrow upvote p-1 hover:text-[#ff4500] text-[#818384]"
+                  className="vote-arrow upvote p-1 hover:text-accent text-[#818384]"
                   onClick={(e) => e.preventDefault()}
                 >
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

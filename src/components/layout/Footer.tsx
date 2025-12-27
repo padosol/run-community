@@ -6,7 +6,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo & Copyright */}
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-[#ff4500] rounded-full flex items-center justify-center">
+            <div className="w-6 h-6 icon-accent rounded-full">
               <svg 
                 viewBox="0 0 20 20" 
                 className="w-4 h-4 text-white"

@@ -37,7 +37,7 @@
 - [x] 내역서 작성
 - [x] 유지보수 진행
 - [x] 검토 완료
-- [x] Git Push (대기중)
+- [x] Git Push (완료)
 
 ---
 
@@ -79,7 +79,7 @@
 - [x] 내역서 작성
 - [x] 유지보수 진행
 - [x] 검토 완료
-- [ ] Git Push
+- [x] Git Push (완료)
 
 ---
 
@@ -115,7 +115,83 @@
 - [x] 내역서 작성
 - [x] 유지보수 진행
 - [x] 검토 완료
-- [ ] Git Push
+- [x] Git Push (완료)
+
+---
+
+### [2024-12-27] 유지보수 내역
+
+#### 작업 ID: MT-20241227-004
+
+#### 작업 개요
+
+- **작업 유형**: 리팩토링
+- **우선순위**: 보통
+- **예상 소요 시간**: 20분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**: 악센트 컬러(#ff4500)가 각 파일에 하드코딩되어 있어 변경 시 여러 파일 수정 필요
+- **영향 범위**: 전체 UI 컴포넌트
+- **해결 방안**: CSS 변수와 유틸리티 클래스로 중앙 관리
+
+#### 변경 파일 목록
+
+- [x] src/app/globals.css - 악센트 유틸리티 클래스 추가 (bg-accent, text-accent, btn-accent 등)
+- [x] src/components/layout/Header.tsx - icon-accent, btn-accent 클래스 적용
+- [x] src/components/layout/Footer.tsx - icon-accent 클래스 적용
+- [x] src/components/posts/PostList.tsx - hover:text-accent 클래스 적용
+- [x] src/components/posts/PostForm.tsx - text-accent, btn-accent 클래스 적용
+- [x] src/app/new-post/NewPostClient.tsx - border-b-accent, border-l-accent, text-accent 클래스 적용
+- [x] src/app/page.tsx - text-accent 클래스 적용
+- [x] src/app/posts/[id]/page.tsx - tag-accent 클래스 적용
+
+#### 테스트 계획
+
+- [x] 모든 페이지 렌더링 확인
+- [x] 악센트 컬러 일관성 확인
+
+#### 상태
+
+- [x] 내역서 작성
+- [x] 유지보수 진행
+- [x] 검토 완료
+- [x] Git Push (완료)
+
+---
+
+### [2024-12-27] 유지보수 내역
+
+#### 작업 ID: MT-20241227-005
+
+#### 작업 개요
+
+- **작업 유형**: 기능개선
+- **우선순위**: 낮음
+- **예상 소요 시간**: 5분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**: 주황색(#ff4500) 악센트가 레딧과 너무 유사하여 차별화 필요
+- **영향 범위**: 전체 UI 악센트 컬러
+- **해결 방안**: 블루(#0079d3) 악센트 컬러로 변경
+
+#### 변경 파일 목록
+
+- [x] src/app/globals.css - --accent, --accent-hover, --upvote 컬러 변경
+
+#### 테스트 계획
+
+- [x] 전체 UI 블루 톤 적용 확인
+
+#### 상태
+
+- [x] 내역서 작성
+- [x] 유지보수 진행
+- [x] 검토 완료
+- [x] Git Push (완료)
 
 ---
 

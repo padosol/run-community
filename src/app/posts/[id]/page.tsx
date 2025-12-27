@@ -85,7 +85,7 @@ export default async function PostDetailPage({
           <div className="flex-1 p-3 min-w-0">
             {/* Meta Info */}
             <div className="post-meta flex items-center gap-1 mb-2 flex-wrap">
-              <span className="reddit-tag bg-[#ff4500] text-white">
+              <span className="tag-accent">
                 커뮤니티
               </span>
               <span className="text-[#818384] text-xs">•</span>

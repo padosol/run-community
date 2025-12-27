@@ -55,7 +55,7 @@ export default function PostForm({
               placeholder="제목"
             />
             {errors.title && (
-              <p className="mt-1 text-xs text-[#ff4500]">{errors.title.message}</p>
+              <p className="mt-1 text-xs text-accent">{errors.title.message}</p>
             )}
           </div>
 
@@ -69,7 +69,7 @@ export default function PostForm({
               placeholder="내용을 입력하세요 (선택)"
             ></textarea>
             {errors.content && (
-              <p className="mt-1 text-xs text-[#ff4500]">{errors.content.message}</p>
+              <p className="mt-1 text-xs text-accent">{errors.content.message}</p>
             )}
           </div>
 
@@ -90,7 +90,7 @@ export default function PostForm({
               />
             </label>
             {errors.image && (
-              <p className="mt-1 text-xs text-[#ff4500]">{errors.image.message as string}</p>
+              <p className="mt-1 text-xs text-accent">{errors.image.message as string}</p>
             )}
             {imagePreview && (
               <div className="mt-3 relative inline-block">
@@ -98,7 +98,7 @@ export default function PostForm({
                 <button
                   type="button"
                   onClick={() => setImagePreview(null)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-[#ff4500] rounded-full flex items-center justify-center text-white text-xs hover:bg-[#ff5722]"
+                  className="absolute -top-2 -right-2 w-6 h-6 btn-accent rounded-full flex items-center justify-center text-xs"
                 >
                   ✕
                 </button>
@@ -114,7 +114,7 @@ export default function PostForm({
             <button
               type="submit"
               disabled={isLoading}
-              className="px-4 py-1.5 text-sm font-bold text-white bg-[#ff4500] hover:bg-[#ff5722] rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-accent px-4 py-1.5 text-sm rounded-full transition-colors"
             >
               {isLoading ? '처리 중...' : submitButtonText}
             </button>
@@ -125,7 +125,7 @@ export default function PostForm({
         <div className="p-8 text-center">
           <p className="text-[#818384] mb-4">게시글을 작성하려면 로그인이 필요합니다.</p>
           <SignInButton mode="modal">
-            <button className="px-5 py-1.5 text-sm font-bold text-white bg-[#ff4500] hover:bg-[#ff5722] rounded-full transition-colors">
+            <button className="btn-accent px-5 py-1.5 text-sm rounded-full transition-colors">
               로그인
             </button>
           </SignInButton>
