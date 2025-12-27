@@ -8,7 +8,7 @@ export default function Header() {
       <div className="container mx-auto px-4 h-12 flex justify-between items-center">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-[#ff4500] rounded-full flex items-center justify-center">
+          <div className="w-8 h-8 icon-accent rounded-full">
             <svg 
               viewBox="0 0 20 20" 
               className="w-5 h-5 text-white"
@@ -57,12 +57,12 @@ export default function Header() {
 
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="px-5 py-1.5 text-sm font-bold text-white bg-[#ff4500] hover:bg-[#ff5722] rounded-full transition-colors">
+              <button className="btn-accent px-5 py-1.5 text-sm rounded-full transition-colors">
                 로그인
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="px-5 py-1.5 text-sm font-bold text-[#ff4500] border border-[#ff4500] hover:bg-[#ff4500]/10 rounded-full transition-colors hidden sm:block">
+              <button className="btn-accent-outline px-5 py-1.5 text-sm rounded-full transition-colors hidden sm:block">
                 회원가입
               </button>
             </SignUpButton>

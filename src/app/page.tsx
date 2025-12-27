@@ -8,7 +8,7 @@ export default async function HomePage() {
   if (!initialPosts) {
     return (
       <div className="max-w-3xl mx-auto">
-        <div className="reddit-card p-4 text-center text-[#ff4500]">
+        <div className="reddit-card p-4 text-center text-accent">
           게시글을 불러오는 데 실패했습니다.
         </div>
       </div>
