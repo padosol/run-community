@@ -3,6 +3,7 @@
 import PostForm from '@/components/posts/PostForm';
 import { createPost } from '@/app/_actions/post';
 import { useState } from 'react';
+import { isRedirectError } from 'next/dist/client/components/redirect-error';
 
 export default function NewPostClient() {
   const [isLoading, setIsLoading] = useState(false);
@@ -21,6 +22,10 @@ export default function NewPostClient() {
     try {
       await createPost(formData);
     } catch (e: any) {
+      // redirect()는 에러를 throw하므로, redirect 에러는 다시 throw
+      if (isRedirectError(e)) {
+        throw e;
+      }
       console.error(e);
       setError(e.message || '게시글 작성에 실패했습니다.');
     } finally {
