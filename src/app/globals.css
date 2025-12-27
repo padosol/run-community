@@ -39,6 +39,7 @@ body {
 
 .reddit-card:hover {
   border-color: var(--foreground-muted);
+  cursor: pointer;
 }
 
 /* Reddit-style Vote Button */
@@ -80,6 +81,7 @@ body {
   padding: 8px 16px;
   border-radius: 9999px;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .reddit-button:hover {
@@ -94,6 +96,7 @@ body {
   border: 1px solid var(--foreground);
   border-radius: 9999px;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .reddit-button-outline:hover {
@@ -195,6 +198,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   transition: background-color 0.1s ease;
+  cursor: pointer;
 }
 
 .action-button:hover {
@@ -209,6 +213,7 @@ body {
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
 }
 
 /* ========================================
@@ -257,6 +262,7 @@ body {
   color: white;
   font-weight: 700;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-accent:hover {
@@ -274,6 +280,7 @@ body {
   border: 1px solid var(--accent);
   font-weight: 700;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .btn-accent-outline:hover {
@@ -287,6 +294,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 /* Accent Tag */
@@ -297,6 +305,7 @@ body {
   border-radius: 9999px;
   font-size: 12px;
   font-weight: 500;
+  cursor: pointer;
 }
 
 /* Accent Border Decorations */
