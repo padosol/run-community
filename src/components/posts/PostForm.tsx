@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
 
 interface PostFormProps {
-  initialValues?: Partial<PostFormValues>; // For editing existing posts
+  initialValues?: Partial<PostFormValues>;
   onSubmit: (data: PostFormValues) => void;
   isLoading?: boolean;
   submitButtonText?: string;
@@ -35,89 +35,97 @@ export default function PostForm({
     if (event.target.files && event.target.files[0]) {
       const file = event.target.files[0];
       setImagePreview(URL.createObjectURL(file));
-      register('image').onChange(event); // Manually call onChange for react-hook-form
+      register('image').onChange(event);
     } else {
       setImagePreview(null);
     }
   };
 
-
   return (
     <>
       <SignedIn>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
+          {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              제목
-            </label>
             <input
               id="title"
               type="text"
               {...register('title')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
-              placeholder="게시글 제목을 입력하세요"
+              className="w-full bg-[#272729] border border-[#343536] rounded px-3 py-2 text-sm text-[#d7dadc] placeholder-[#818384] focus:outline-none focus:border-[#d7dadc]"
+              placeholder="제목"
             />
             {errors.title && (
-              <p className="mt-2 text-sm text-red-600">{errors.title.message}</p>
+              <p className="mt-1 text-xs text-[#ff4500]">{errors.title.message}</p>
             )}
           </div>
 
+          {/* Content */}
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-              내용
-            </label>
             <textarea
               id="content"
               {...register('content')}
-              rows={10}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm p-2"
+              rows={8}
+              className="w-full bg-[#272729] border border-[#343536] rounded px-3 py-2 text-sm text-[#d7dadc] placeholder-[#818384] focus:outline-none focus:border-[#d7dadc] resize-none"
+              placeholder="내용을 입력하세요 (선택)"
             ></textarea>
             {errors.content && (
-              <p className="mt-2 text-sm text-red-600">{errors.content.message}</p>
+              <p className="mt-1 text-xs text-[#ff4500]">{errors.content.message}</p>
             )}
           </div>
 
+          {/* Image Upload */}
           <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-              이미지 (선택 사항)
+            <label className="flex items-center gap-2 text-sm text-[#818384] cursor-pointer hover:text-[#d7dadc] transition-colors">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span>이미지 첨부</span>
+              <input
+                id="image"
+                type="file"
+                accept="image/*"
+                {...register('image')}
+                onChange={handleImageChange}
+                className="hidden"
+              />
             </label>
-            <input
-              id="image"
-              type="file"
-              accept="image/*"
-              {...register('image')}
-              onChange={handleImageChange}
-              className="mt-1 block w-full text-sm text-gray-500
-                file:mr-4 file:py-2 file:px-4
-                file:rounded-md file:border-0
-                file:text-sm file:font-semibold
-                file:bg-blue-50 file:text-blue-700
-                hover:file:bg-blue-100"
-            />
             {errors.image && (
-              <p className="mt-2 text-sm text-red-600">{errors.image.message as string}</p>
+              <p className="mt-1 text-xs text-[#ff4500]">{errors.image.message as string}</p>
             )}
             {imagePreview && (
-              <div className="mt-4">
-                <img src={imagePreview} alt="Image Preview" className="max-w-xs h-auto rounded-md shadow-md" />
+              <div className="mt-3 relative inline-block">
+                <img src={imagePreview} alt="미리보기" className="max-w-xs h-auto rounded border border-[#343536]" />
+                <button
+                  type="button"
+                  onClick={() => setImagePreview(null)}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-[#ff4500] rounded-full flex items-center justify-center text-white text-xs hover:bg-[#ff5722]"
+                >
+                  ✕
+                </button>
               </div>
             )}
           </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            {isLoading ? '처리 중...' : submitButtonText}
-          </button>
+          {/* Divider */}
+          <div className="border-t border-[#343536]"></div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-4 py-1.5 text-sm font-bold text-white bg-[#ff4500] hover:bg-[#ff5722] rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isLoading ? '처리 중...' : submitButtonText}
+            </button>
+          </div>
         </form>
       </SignedIn>
       <SignedOut>
-        <div className="text-center p-8 bg-gray-50 rounded-lg">
-          <p className="text-gray-600 mb-4">게시글을 작성하려면 로그인이 필요합니다.</p>
+        <div className="p-8 text-center">
+          <p className="text-[#818384] mb-4">게시글을 작성하려면 로그인이 필요합니다.</p>
           <SignInButton mode="modal">
-            <button className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 transition-colors">
+            <button className="px-5 py-1.5 text-sm font-bold text-white bg-[#ff4500] hover:bg-[#ff5722] rounded-full transition-colors">
               로그인
             </button>
           </SignInButton>

@@ -29,16 +29,28 @@ export default function NewPostClient() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">새 게시글 작성</h1>
+    <div className="max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="reddit-card mb-3 p-3 border-b-4 border-[#ff4500]">
+        <h1 className="text-lg font-medium text-[#d7dadc]">게시글 작성</h1>
+      </div>
+
+      {/* Error Message */}
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-          <strong className="font-bold">Error!</strong>
-          <span className="block sm:inline"> {error}</span>
+        <div className="reddit-card mb-3 p-3 border-l-4 border-[#ff4500] bg-[#1a1a1b]">
+          <div className="flex items-center gap-2 text-[#ff4500]">
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm">{error}</span>
+          </div>
         </div>
       )}
-      <PostForm onSubmit={handleSubmit} isLoading={isLoading} submitButtonText="게시글 작성" />
+
+      {/* Form */}
+      <div className="reddit-card">
+        <PostForm onSubmit={handleSubmit} isLoading={isLoading} submitButtonText="게시" />
+      </div>
     </div>
   );
 }
-

@@ -1,0 +1,19 @@
+# Community 프로젝트 Cursor Rules
+
+## 유지보수 작업 시 (조건부)
+
+> **트리거 키워드**: 사용자가 "유지보수", "maintenance", "MT-" 등의 키워드를 사용하면 아래 문서들을 반드시 읽고 참고하세요.
+
+유지보수 요청 시 참고할 문서:
+1. `docs/MAINTENANCE.md` - 유지보수 사이클 및 가이드
+2. `todo/MAINTENANCE_LOG.md` - 유지보수 내역 로그 (여기에 작업 내역 추가)
+
+---
+
+## 프로젝트 규칙
+
+### 참고 문서
+- 기술 스택: `docs/tech-stack.md`
+- DB 스키마: `docs/SCHEMA.md`
+- 유지보수 가이드: `docs/MAINTENANCE.md`
+

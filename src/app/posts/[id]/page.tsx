@@ -3,7 +3,8 @@ import LikeButton from "@/components/posts/LikeButton";
 import PostActions from "@/components/posts/PostActions";
 import { getCurrentUser } from "@/lib/clerk/server";
 import { createClient } from "@/lib/supabase/server";
-import { format } from "date-fns";
+import { formatDistanceToNow } from "date-fns";
+import { ko } from "date-fns/locale";
 import { notFound } from "next/navigation";
 
 export default async function PostDetailPage({
@@ -13,9 +14,8 @@ export default async function PostDetailPage({
 }) {
   const { id } = await params;
   const supabase = await createClient();
-  const currentUserId = await getCurrentUser(); // 현재 로그인한 사용자 ID
+  const currentUserId = await getCurrentUser();
 
-  // Fetch post details with extended comment fields
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select(
@@ -39,10 +39,9 @@ export default async function PostDetailPage({
 
   if (postError || !post) {
     console.error("Error fetching post:", postError);
-    notFound(); // If post not found, show 404 page
+    notFound();
   }
 
-  // 현재 사용자가 좋아요한 댓글 ID 목록 가져오기
   let currentUserLikedCommentIds: string[] = [];
   if (currentUserId && post.comments && post.comments.length > 0) {
     const commentIds = post.comments.map((c: { id: string }) => c.id);
@@ -57,7 +56,6 @@ export default async function PostDetailPage({
     }
   }
 
-  // Increment view count (simple for MVP)
   const { error: updateError } = await supabase
     .from("posts")
     .update({ views: (post.views || 0) + 1 })
@@ -65,75 +63,106 @@ export default async function PostDetailPage({
 
   if (updateError) {
     console.error("Error incrementing view count:", updateError);
-    // Optionally, handle error more gracefully, but don't block page load for this.
   }
 
-  // Update post views in the local object for display
   const updatedPost = { ...post, views: (post.views || 0) + 1 };
-
   const commentCount = updatedPost.comments?.length || 0;
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      {/* 게시글 헤더 - 간결하게 표시 */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 rounded-t-xl shadow-lg">
-        <h1 className="text-2xl font-bold mb-3">
-          {updatedPost.title || updatedPost.content.split("\n")[0]}
-        </h1>
-        <div className="flex flex-wrap justify-between items-center text-sm text-blue-100">
-          <span className="flex items-center gap-2">
-            <span className="bg-blue-500 px-2 py-1 rounded-full text-xs">
-              {updatedPost.user_id
-                ? `User ${updatedPost.user_id.substring(0, 8)}...`
-                : "익명"}
-            </span>
-            <span>{format(new Date(updatedPost.created_at), "yyyy.MM.dd HH:mm")}</span>
-          </span>
-          <div className="flex items-center gap-4 mt-2 sm:mt-0">
+    <div className="max-w-3xl mx-auto">
+      {/* Post Card */}
+      <article className="reddit-card">
+        <div className="flex">
+          {/* Vote Section */}
+          <div className="flex flex-col items-center py-3 px-3 bg-[#161617] rounded-l min-w-[50px]">
             <LikeButton
               postId={updatedPost.id}
               initialLikes={updatedPost.likes}
             />
-            <span className="flex items-center gap-1">
-              👁️ {updatedPost.views}
-            </span>
-            <span className="flex items-center gap-1">
-              💬 {commentCount}
-            </span>
+          </div>
+
+          {/* Content Section */}
+          <div className="flex-1 p-3 min-w-0">
+            {/* Meta Info */}
+            <div className="post-meta flex items-center gap-1 mb-2 flex-wrap">
+              <span className="reddit-tag bg-[#ff4500] text-white">
+                커뮤니티
+              </span>
+              <span className="text-[#818384] text-xs">•</span>
+              <span className="text-[#818384] text-xs">
+                Posted by u/{updatedPost.user_id ? updatedPost.user_id.substring(0, 8) : '익명'}
+              </span>
+              <span className="text-[#818384] text-xs">•</span>
+              <span className="text-[#818384] text-xs">
+                {formatDistanceToNow(new Date(updatedPost.created_at), { addSuffix: true, locale: ko })}
+              </span>
+            </div>
+
+            {/* Title */}
+            <h1 className="text-xl font-semibold text-[#d7dadc] mb-3">
+              {updatedPost.title || updatedPost.content.split("\n")[0]}
+            </h1>
+
+            {/* Content */}
+            <div className="text-[#d7dadc] text-sm leading-relaxed whitespace-pre-wrap mb-4">
+              {updatedPost.content}
+            </div>
+
+            {/* Image */}
+            {updatedPost.image_url && (
+              <div className="mb-4 rounded overflow-hidden">
+                <img
+                  src={updatedPost.image_url}
+                  alt="첨부 이미지"
+                  className="max-w-full h-auto cursor-pointer hover:opacity-95 transition-opacity"
+                  onClick={() => window.open(updatedPost.image_url, '_blank')}
+                />
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="flex items-center gap-1 -ml-2 border-t border-[#343536] pt-2 mt-2">
+              <span className="action-button">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+                {commentCount} 댓글
+              </span>
+              <span className="action-button">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                공유
+              </span>
+              <span className="action-button">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+                </svg>
+                저장
+              </span>
+              <span className="action-button">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {updatedPost.views}
+              </span>
+
+              {/* Post Actions (Edit/Delete) */}
+              <div className="ml-auto">
+                <PostActions
+                  postId={updatedPost.id}
+                  postUserId={updatedPost.user_id || ""}
+                  currentUserId={currentUserId}
+                />
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      </article>
 
-      {/* 게시글 본문 */}
-      <div className="bg-white p-6 border-x border-gray-200 shadow-sm">
-        <div className="prose max-w-none">
-          <p className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-            {updatedPost.content}
-          </p>
-          {updatedPost.image_url && (
-            <div className="mt-4">
-              <img
-                src={updatedPost.image_url}
-                alt="첨부 이미지"
-                className="max-w-full h-auto rounded-lg shadow-md cursor-pointer hover:opacity-95 transition-opacity"
-                onClick={() => window.open(updatedPost.image_url, '_blank')}
-              />
-            </div>
-          )}
-        </div>
-
-        {/* 게시글 액션 */}
-        <div className="mt-6 pt-4 border-t border-gray-100">
-          <PostActions
-            postId={updatedPost.id}
-            postUserId={updatedPost.user_id || ""}
-            currentUserId={currentUserId}
-          />
-        </div>
-      </div>
-
-      {/* 댓글 섹션 - 메인 콘텐츠로 강조 */}
-      <div className="bg-gray-50 rounded-b-xl border border-t-0 border-gray-200 shadow-lg">
+      {/* Comments Section */}
+      <div className="reddit-card mt-3">
         <CommentList
           postId={updatedPost.id}
           comments={updatedPost.comments || []}

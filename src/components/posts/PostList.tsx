@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useInView } from 'react-intersection-observer';
 import Link from 'next/link';
-import { format } from 'date-fns';
+import { formatDistanceToNow } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { getPosts } from '@/app/_actions/post';
 
 // Define the type for a single post
@@ -23,7 +24,7 @@ interface PostListProps {
 
 export default function PostList({ initialPosts }: PostListProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
-  const [page, setPage] = useState(2); // Start loading from the second page
+  const [page, setPage] = useState(2);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,7 +47,6 @@ export default function PostList({ initialPosts }: PostListProps) {
       }
     } catch (error) {
       console.error("Failed to load more posts:", error);
-      // Optionally, handle the error in the UI
     } finally {
       setIsLoading(false);
     }
@@ -60,26 +60,80 @@ export default function PostList({ initialPosts }: PostListProps) {
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-3">
         {posts.map((post) => (
-          <Link key={post.id} href={`/posts/${post.id}`}>
-            <div className="block bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow border border-gray-200">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm text-gray-500">
-                  {post.user_id ? `User ${post.user_id.substring(0, 8)}...` : '알 수 없음'} | {format(new Date(post.created_at), 'yyyy.MM.dd HH:mm')}
+          <Link key={post.id} href={`/posts/${post.id}`} className="block">
+            <article className="reddit-card flex hover:border-[#818384]">
+              {/* Vote Section */}
+              <div className="flex flex-col items-center py-2 px-2 bg-[#161617] rounded-l min-w-[40px]">
+                <button 
+                  className="vote-arrow upvote p-1 hover:text-[#ff4500] text-[#818384]"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+                  </svg>
+                </button>
+                <span className="text-xs font-bold text-[#d7dadc] my-1">
+                  {post.likes}
                 </span>
-                <div className="flex items-center space-x-3 text-sm text-gray-600">
-                  <span>추천 {post.likes}</span>
-                  <span>조회 {post.views}</span>
+                <button 
+                  className="vote-arrow downvote p-1 hover:text-[#7193ff] text-[#818384]"
+                  onClick={(e) => e.preventDefault()}
+                >
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 20l8-8h-5V4H9v8H4z"/>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Content Section */}
+              <div className="flex-1 p-2 min-w-0">
+                {/* Meta Info */}
+                <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
+                  <span className="text-[#818384] text-xs">
+                    Posted by u/{post.user_id ? post.user_id.substring(0, 8) : '익명'}
+                  </span>
+                  <span className="text-[#818384] text-xs">•</span>
+                  <span className="text-[#818384] text-xs">
+                    {formatDistanceToNow(new Date(post.created_at), { addSuffix: true, locale: ko })}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h2 className="text-lg font-medium text-[#d7dadc] mb-1 line-clamp-2">
+                  {post.title || post.content.split('\n')[0]}
+                </h2>
+
+                {/* Content Preview */}
+                <p className="text-sm text-[#818384] line-clamp-2 mb-2">
+                  {post.content}
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-1 -ml-2">
+                  <span className="action-button">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    댓글
+                  </span>
+                  <span className="action-button">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    공유
+                  </span>
+                  <span className="action-button">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    {post.views}
+                  </span>
                 </div>
               </div>
-              <h2 className="text-xl font-semibold text-gray-800 mb-2 truncate">
-                {post.title || post.content.split('\n')[0]}
-              </h2>
-              <p className="text-gray-700 line-clamp-2">
-                {post.content}
-              </p>
-            </div>
+            </article>
           </Link>
         ))}
       </div>
@@ -87,13 +141,21 @@ export default function PostList({ initialPosts }: PostListProps) {
       {/* Intersection observer target */}
       {hasMore && (
         <div ref={ref} className="text-center p-4">
-          {isLoading ? '로딩 중...' : ''}
+          {isLoading && (
+            <div className="flex items-center justify-center gap-2 text-[#818384]">
+              <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              로딩 중...
+            </div>
+          )}
         </div>
       )}
 
-      {!hasMore && (
-        <div className="text-center p-4 text-gray-500">
-          더 이상 게시글이 없습니다.
+      {!hasMore && posts.length > 0 && (
+        <div className="text-center p-6 text-[#818384] text-sm">
+          더 이상 게시글이 없습니다
         </div>
       )}
     </>
