@@ -87,11 +87,15 @@ export async function createPost(formData: FormData) {
     title,
     content,
     image_url: imageUrl,
+    // 레거시 컬럼 - 마이그레이션 적용 후 제거 가능
+    author_nickname: '',
+    password_hash: '',
   });
 
   if (error) {
     console.error("Error creating post:", error);
-    throw new Error("게시글 작성에 실패했습니다.");
+    console.error("Error details:", JSON.stringify(error, null, 2));
+    throw new Error(`게시글 작성에 실패했습니다: ${error.message || error.code || 'Unknown error'}`);
   }
 
   revalidatePath("/"); // Revalidate home page to show new post
