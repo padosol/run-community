@@ -286,11 +286,11 @@
 #### 작업 상세
 
 - **문제 설명**: 댓글 등록 기능이 정상 동작하지 않음
-- **원인 분석**: 
+- **원인 분석**:
   1. 댓글 유효성 검사에서 최소 글자 수가 5자로 설정됨
   2. Zod 스키마에서 null 값 허용하지 않음
   3. DB comments 테이블의 author_nickname 컬럼이 NOT NULL
-- **해결 방안**: 
+- **해결 방안**:
   1. 최소 글자 수를 1자로 변경
   2. 스키마에 .nullable() 추가
   3. DB 마이그레이션 적용 (author_nickname DROP NOT NULL)
@@ -298,7 +298,7 @@
 #### 변경 파일 목록
 
 - [x] src/lib/validation/comment.ts
-- [x] src/app/_actions/comment.ts (에러 로깅 강화)
+- [x] src/app/\_actions/comment.ts (에러 로깅 강화)
 
 #### 테스트 계획
 
