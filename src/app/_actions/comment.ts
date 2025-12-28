@@ -81,7 +81,8 @@ export async function createComment(postId: string, formData: FormData) {
 
   if (error) {
     console.error('Error creating comment:', error);
-    throw new Error('댓글 작성에 실패했습니다.');
+    console.error('Supabase error details:', JSON.stringify(error, null, 2));
+    throw new Error(`댓글 작성에 실패했습니다: ${error.message}`);
   }
 
   revalidatePath(`/posts/${postId}`); // Revalidate the post detail page
