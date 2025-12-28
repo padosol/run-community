@@ -56,6 +56,25 @@ export default function Header() {
         <nav className="flex items-center gap-2">
           <SignedIn>
             <Link
+              href="/saved"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
+              title="저장된 게시글"
+            >
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
+                />
+              </svg>
+            </Link>
+            <Link
               href="/new-post"
               className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
             >
