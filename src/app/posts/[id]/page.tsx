@@ -46,6 +46,7 @@ export default async function PostDetailPage({
 
   // 저장 여부 확인
   let isSaved = false;
+  let hasLiked: number = 0;
   if (currentUserId) {
     const { data: bookmark } = await supabase
       .from("bookmarks")
@@ -54,6 +55,17 @@ export default async function PostDetailPage({
       .eq("post_id", id)
       .single();
     isSaved = !!bookmark;
+
+    // 추천 상태 확인
+    const { data: recommendation } = await supabase
+      .from("recommendations")
+      .select("id, vote_type")
+      .eq("user_id", currentUserId)
+      .eq("post_id", id)
+      .single();
+    if (recommendation) {
+      hasLiked = recommendation.vote_type || 0;
+    }
   }
 
   let currentUserLikedCommentIds: string[] = [];
@@ -99,10 +111,12 @@ export default async function PostDetailPage({
       <article className="reddit-card">
         <div className="flex">
           {/* Vote Section */}
-          <div className="flex flex-col items-center py-3 px-3 bg-[#161617] rounded-l min-w-[50px]">
+          <div className="flex flex-col items-center justify-center py-3 px-3 bg-[#161617] rounded-l min-w-[50px]">
             <LikeButton
               postId={updatedPost.id}
-              initialLikes={updatedPost.likes}
+              initialUpvotes={updatedPost.upvotes || 0}
+              initialDownvotes={updatedPost.downvotes || 0}
+              initialVoteType={hasLiked}
             />
           </div>
 

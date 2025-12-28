@@ -237,7 +237,7 @@ export async function getPosts(page = 1, limit = 10) {
 
   const { data: posts, error } = await supabase
     .from('posts')
-    .select('id, created_at, user_id, title, content, likes, views')
+    .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views')
     .order('created_at', { ascending: false })
     .range(from, to);
 
