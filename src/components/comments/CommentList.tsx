@@ -3,6 +3,7 @@
 import { createComment } from "@/app/_actions/comment";
 import { CommentFormValues } from "@/lib/validation/comment";
 import { useState } from "react";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import CommentForm from "./CommentForm";
 import CommentItem from "./CommentItem";
 
@@ -43,16 +44,13 @@ export default function CommentList({
     setError(null);
     const formData = new FormData();
     formData.append("content", data.content);
-    if (data.image && data.image[0]) {
-      formData.append("image", data.image[0]);
-    }
-    if (data.link_url) {
-      formData.append("link_url", data.link_url);
-    }
 
     try {
       await createComment(postId, formData);
     } catch (e: any) {
+      if (isRedirectError(e)) {
+        throw e;
+      }
       console.error(e);
       setError(e.message || "댓글 작성에 실패했습니다.");
     } finally {
@@ -65,12 +63,10 @@ export default function CommentList({
     const commentMap = new Map<string, Comment & { replies: Comment[] }>();
     const rootComments: (Comment & { replies: Comment[] })[] = [];
 
-    // 모든 댓글을 맵에 추가
     comments.forEach((comment) => {
       commentMap.set(comment.id, { ...comment, replies: [] });
     });
 
-    // 부모-자식 관계 구성
     comments.forEach((comment) => {
       const commentWithReplies = commentMap.get(comment.id)!;
       if (
@@ -85,7 +81,6 @@ export default function CommentList({
       }
     });
 
-    // 대댓글 정렬 (최신순)
     commentMap.forEach((comment) => {
       comment.replies.sort(
         (a, b) =>
@@ -98,19 +93,49 @@ export default function CommentList({
 
   const commentTree = buildCommentTree(comments);
 
-  // 정렬된 댓글
   const sortedComments = [...commentTree].sort((a, b) => {
     if (sortBy === "likes") {
       return b.likes - a.likes;
     }
-    // 최신순 (내림차순)
     return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
   });
 
   return (
-    <div className="p-6">
-      {/* 댓글 작성 폼 - 상단에 강조 배치 */}
-      <div className="mb-6">
+    <div className="p-3">
+      {/* 댓글 헤더 */}
+      <div className="flex justify-between items-center mb-3 pb-2 border-b border-[#343536]">
+        <h2 className="text-xs font-bold text-[#d7dadc] flex items-center gap-1">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          댓글 {comments.length}개
+        </h2>
+        <div className="flex gap-1">
+          <button
+            onClick={() => setSortBy("latest")}
+            className={`px-2 py-0.5 text-xs rounded transition-colors ${
+              sortBy === "latest"
+                ? "bg-[#272729] text-[#d7dadc]"
+                : "text-[#818384] hover:text-[#d7dadc]"
+            }`}
+          >
+            최신순
+          </button>
+          <button
+            onClick={() => setSortBy("likes")}
+            className={`px-2 py-0.5 text-xs rounded transition-colors ${
+              sortBy === "likes"
+                ? "bg-[#272729] text-[#d7dadc]"
+                : "text-[#818384] hover:text-[#d7dadc]"
+            }`}
+          >
+            인기순
+          </button>
+        </div>
+      </div>
+
+      {/* 댓글 작성 폼 */}
+      <div className="mb-3">
         <CommentForm
           postId={postId}
           onSubmit={handleCreateComment}
@@ -119,69 +144,26 @@ export default function CommentList({
       </div>
 
       {error && (
-        <div
-          className="bg-red-50 border-l-4 border-red-500 text-red-700 px-4 py-3 rounded-r mb-4"
-          role="alert"
-        >
-          <p className="font-medium">오류 발생</p>
-          <p className="text-sm">{error}</p>
+        <div className="mb-3 p-2 bg-[#1a1a1b] border-l-2 border-accent rounded text-xs text-accent">
+          {error}
         </div>
       )}
 
-      {/* 댓글 헤더 */}
-      <div className="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-        <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-          💬 댓글
-          <span className="bg-blue-100 text-blue-700 text-sm px-2 py-0.5 rounded-full">
-            {comments.length}
-          </span>
-        </h2>
-        <div className="flex gap-1">
-          <button
-            onClick={() => setSortBy("latest")}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
-              sortBy === "latest"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            🕐 최신순
-          </button>
-          <button
-            onClick={() => setSortBy("likes")}
-            className={`px-3 py-1.5 text-sm rounded-lg transition-all duration-200 ${
-              sortBy === "likes"
-                ? "bg-blue-600 text-white shadow-sm"
-                : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
-            }`}
-          >
-            ❤️ 인기순
-          </button>
-        </div>
-      </div>
-
       {/* 댓글 목록 */}
       {sortedComments && sortedComments.length > 0 ? (
-        <div className="space-y-3">
-          {sortedComments.map((comment, index) => (
-            <div
+        <div className="space-y-2">
+          {sortedComments.map((comment) => (
+            <CommentItem
               key={comment.id}
-              className="animate-fadeIn"
-              style={{ animationDelay: `${index * 50}ms` }}
-            >
-              <CommentItem
-                comment={comment}
-                postId={postId}
-                currentUserLikedCommentIds={currentUserLikedCommentIds}
-              />
-            </div>
+              comment={comment}
+              postId={postId}
+              currentUserLikedCommentIds={currentUserLikedCommentIds}
+            />
           ))}
         </div>
       ) : (
-        <div className="text-center py-12 bg-white rounded-xl border-2 border-dashed border-gray-200">
-          <div className="text-4xl mb-3">💭</div>
-          <p className="text-gray-500 font-medium">아직 댓글이 없습니다</p>
-          <p className="text-gray-400 text-sm mt-1">첫 댓글의 주인공이 되어보세요!</p>
+        <div className="text-center py-6">
+          <p className="text-[#818384] text-xs">아직 댓글이 없습니다</p>
         </div>
       )}
     </div>

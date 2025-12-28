@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { addLike } from '@/app/_actions/recommendation';
-import { ThumbsUp } from 'lucide-react'; // Using lucide-react for icon
 
 interface LikeButtonProps {
   postId: string;
@@ -11,43 +10,51 @@ interface LikeButtonProps {
 
 export default function LikeButton({ postId, initialLikes }: LikeButtonProps) {
   const [likes, setLikes] = useState(initialLikes);
-  const [hasLiked, setHasLiked] = useState(false); // To prevent multiple clicks from client-side
+  const [hasLiked, setHasLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const handleLike = async () => {
-    if (hasLiked || isLoading) return; // Prevent multiple submissions
+    if (hasLiked || isLoading) return;
 
     setIsLoading(true);
-    setError(null);
 
     try {
       const result = await addLike(postId);
       if (result && result.success) {
         setLikes((prev) => prev + 1);
         setHasLiked(true);
-      } else if (result && result.message) {
-        setError(result.message); // Display message like '이미 추천했습니다.'
       }
     } catch (e: any) {
       console.error('Error adding like:', e);
-      setError(e.message || '추천 중 오류가 발생했습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <button
-      onClick={handleLike}
-      disabled={isLoading || hasLiked}
-      className={`flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-medium transition-all
-        ${hasLiked ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
-    >
-      <ThumbsUp size={16} />
-      <span>추천 {likes}</span>
-      {error && <span className="ml-2 text-red-500">{error}</span>}
-    </button>
+    <div className="flex flex-col items-center">
+      <button 
+        onClick={handleLike}
+        disabled={isLoading || hasLiked}
+        className={`vote-arrow upvote p-1 transition-colors ${
+          hasLiked ? 'text-accent' : 'text-[#818384] hover:text-accent'
+        } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 4l-8 8h5v8h6v-8h5z"/>
+        </svg>
+      </button>
+      <span className="text-xs font-bold text-[#d7dadc] my-1">
+        {likes}
+      </span>
+      <button 
+        className="vote-arrow downvote p-1 text-[#818384] hover:text-[#7193ff] transition-colors"
+        onClick={(e) => e.preventDefault()}
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 20l8-8h-5V4H9v8H4z"/>
+        </svg>
+      </button>
+    </div>
   );
 }

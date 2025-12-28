@@ -229,6 +229,49 @@
 
 ---
 
+### [2024-12-27] 유지보수 내역
+
+#### 작업 ID: MT-20241227-007
+
+#### 작업 개요
+
+- **작업 유형**: 기능개선
+- **우선순위**: 보통
+- **예상 소요 시간**: 20분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**:
+  1. 게시글 상세 페이지의 댓글 영역이 다크 테마와 맞지 않음
+  2. 댓글 작성 폼에 불필요한 필드(이미지, 링크 URL)가 있음
+  3. 댓글 작성 UI가 복잡함
+- **영향 범위**: 댓글 폼, 댓글 목록, 댓글 아이템
+- **해결 방안**: 다크 테마 적용 및 댓글 폼 간소화
+
+#### 변경 파일 목록
+
+- [x] src/components/comments/CommentForm.tsx
+- [x] src/components/comments/CommentList.tsx
+- [x] src/components/comments/CommentItem.tsx
+- [x] src/components/posts/LikeButton.tsx
+- [x] src/components/posts/PostActions.tsx
+- [x] src/app/posts/[id]/page.tsx
+
+#### 테스트 계획
+
+- [x] 댓글 작성 기능 동작 확인
+- [x] 다크 테마 일관성 확인
+
+#### 상태
+
+- [x] 내역서 작성
+- [x] 유지보수 진행
+- [x] 검증 요청
+- [x] Git Push (완료)
+
+---
+
 ## 템플릿
 
 아래 템플릿을 복사하여 새로운 유지보수 내역을 추가하세요.
