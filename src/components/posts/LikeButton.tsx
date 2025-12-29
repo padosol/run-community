@@ -87,52 +87,52 @@ export default function LikeButton({
   };
 
   return (
-    <div className="flex flex-col items-center justify-between h-full py-1">
-      {/* Upvote section - 상단에 붙음 */}
-      <div className="flex flex-col items-center">
-        <button
-          onClick={() => handleVote(1)}
-          disabled={isLoading}
-          className={`p-1 transition-colors cursor-pointer ${
-            voteType === 1 ? "text-accent" : "text-[#818384] hover:text-accent"
-          } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 4l-8 8h5v8h6v-8h5z" />
-          </svg>
-        </button>
-        <span
-          className={`text-xs font-bold ${
-            voteType === 1 ? "text-accent" : "text-[#d7dadc]"
-          }`}
-        >
-          {upvotes}
-        </span>
-      </div>
-
-      {/* Downvote section - 하단에 붙음 */}
-      <div className="flex flex-col items-center">
-        <span
-          className={`text-xs font-bold ${
-            voteType === -1 ? "text-[#7193ff]" : "text-[#d7dadc]"
-          }`}
-        >
-          {downvotes}
-        </span>
-        <button
-          onClick={() => handleVote(-1)}
-          disabled={isLoading}
-          className={`p-1 transition-colors cursor-pointer ${
-            voteType === -1
-              ? "text-[#7193ff]"
-              : "text-[#818384] hover:text-[#7193ff]"
-          } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 20l8-8h-5V4H9v8H4z" />
-          </svg>
-        </button>
-      </div>
+    <div className="flex items-center gap-2">
+      {/* Upvote button */}
+      <button
+        onClick={() => handleVote(1)}
+        disabled={isLoading}
+        className={`p-1 transition-colors cursor-pointer ${
+          voteType === 1 ? "text-accent" : "text-[#818384] hover:text-accent"
+        } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 4l-8 8h5v8h6v-8h5z" />
+        </svg>
+      </button>
+      
+      {/* Upvotes count */}
+      <span
+        className={`text-sm font-bold min-w-[30px] text-center ${
+          voteType === 1 ? "text-accent" : "text-[#d7dadc]"
+        }`}
+      >
+        {upvotes}
+      </span>
+      
+      {/* Downvotes count */}
+      <span
+        className={`text-sm font-bold min-w-[30px] text-center ${
+          voteType === -1 ? "text-[#7193ff]" : "text-[#d7dadc]"
+        }`}
+      >
+        {downvotes}
+      </span>
+      
+      {/* Downvote button */}
+      <button
+        onClick={() => handleVote(-1)}
+        disabled={isLoading}
+        className={`p-1 transition-colors cursor-pointer ${
+          voteType === -1
+            ? "text-[#7193ff]"
+            : "text-[#818384] hover:text-[#7193ff]"
+        } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
+      >
+        <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 20l8-8h-5V4H9v8H4z" />
+        </svg>
+      </button>
     </div>
   );
 }

@@ -142,21 +142,10 @@ export default async function PostDetailPage({
 
       {/* Post Card */}
       <article className="reddit-card">
-        <div className="flex">
-          {/* Vote Section */}
-          <div className="flex flex-col items-center justify-center py-3 px-3 bg-[#161617] rounded-l min-w-[50px]">
-            <LikeButton
-              postId={updatedPost.id}
-              initialUpvotes={updatedPost.upvotes || 0}
-              initialDownvotes={updatedPost.downvotes || 0}
-              initialVoteType={hasLiked}
-            />
-          </div>
-
-          {/* Content Section */}
-          <div className="flex-1 p-3 min-w-0">
-            {/* Meta Info */}
-            <div className="post-meta flex items-center gap-1 mb-2 flex-wrap">
+        <div className="p-3">
+          {/* Meta Info with Save and Views */}
+          <div className="post-meta flex items-center justify-between gap-1 mb-2 flex-wrap">
+            <div className="flex items-center gap-1 flex-wrap">
               <span className="tag-accent">
                 커뮤니티
               </span>
@@ -169,6 +158,17 @@ export default async function PostDetailPage({
                 {formatDistanceToNow(new Date(updatedPost.created_at), { addSuffix: true, locale: ko })}
               </span>
             </div>
+            <div className="flex items-center gap-2">
+              <SaveButton postId={updatedPost.id} initialSaved={isSaved} />
+              <span className="action-button">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {updatedPost.views}
+              </span>
+            </div>
+          </div>
 
             {/* Title */}
             <h1 className="text-xl font-semibold text-[#d7dadc] mb-3">
@@ -194,23 +194,21 @@ export default async function PostDetailPage({
 
             {/* Action Buttons */}
             <div className="flex items-center gap-1 -ml-2 mt-2">
-              <span className="action-button">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                {commentCount} 댓글
-              </span>
-              <SaveButton postId={updatedPost.id} initialSaved={isSaved} />
-              <span className="action-button">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                {updatedPost.views}
-              </span>
+              {/* 첫 번째 섹션 - 비움 */}
+              <div className="flex-1"></div>
 
-              {/* Post Actions (Edit/Delete) */}
-              <div className="ml-auto">
+              {/* 두 번째 섹션 - 좋아요 버튼 중앙 배치 */}
+              <div className="flex-1 flex justify-center">
+                <LikeButton
+                  postId={updatedPost.id}
+                  initialUpvotes={updatedPost.upvotes || 0}
+                  initialDownvotes={updatedPost.downvotes || 0}
+                  initialVoteType={hasLiked}
+                />
+              </div>
+
+              {/* 세 번째 섹션 - Post Actions (Edit/Delete) */}
+              <div className="flex-1 flex justify-end">
                 <PostActions
                   postId={updatedPost.id}
                   postUserId={updatedPost.user_id || ""}
@@ -219,7 +217,6 @@ export default async function PostDetailPage({
               </div>
             </div>
           </div>
-        </div>
       </article>
 
       {/* Comments Section */}
