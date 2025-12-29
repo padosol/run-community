@@ -1,5 +1,5 @@
 -- Migration: nickname 컬럼을 username으로 변경
--- Date: 2024-12-29
+-- Date: 2025-12-29
 -- Description: users 테이블의 nickname 컬럼명을 username으로 변경
 
 -- 컬럼명 변경
