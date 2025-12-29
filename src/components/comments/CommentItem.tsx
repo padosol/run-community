@@ -62,7 +62,10 @@ export default function CommentItem({
   const initialLikes = comment.likes;
   const initialHasLiked = currentUserLikedCommentIds.includes(comment.id);
   const isOwner = currentUserId === comment.user_id;
+<<<<<<< HEAD
   const isAuthor = comment.user_id === postUserId;
+=======
+>>>>>>> 74c96009dc4c673a647762d578f07864ccd7847b
 
   const handleDeleteClick = () => {
     if (!isOwner) {

@@ -24,7 +24,7 @@ export default function Header() {
             </svg>
           </div>
           <span className="text-lg font-bold text-[#d7dadc] group-hover:text-white transition-colors hidden sm:block">
-            블루써클 커뮤니티
+            Blue Circle
           </span>
         </Link>
 
