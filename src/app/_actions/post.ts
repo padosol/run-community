@@ -343,7 +343,7 @@ export async function getPosts(
 // username 조회 헬퍼 함수
 export async function getUsername(userId: string): Promise<string> {
   const supabase = await createServerClient();
-  
+
   const { data, error } = await supabase
     .from('users')
     .select('username')
@@ -355,4 +355,37 @@ export async function getUsername(userId: string): Promise<string> {
   }
 
   return data.username;
+}
+
+// SEO: 게시글 단일 조회 (메타데이터용)
+export async function getPostById(postId: string) {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select('id, title, content, category, created_at, user_id')
+    .eq('id', postId)
+    .single();
+
+  if (error || !data) {
+    return null;
+  }
+
+  return data;
+}
+
+// SEO: 모든 게시글 ID 조회 (sitemap용)
+export async function getAllPostsForSitemap() {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase
+    .from('posts')
+    .select('id, created_at')
+    .order('created_at', { ascending: false });
+
+  if (error || !data) {
+    return [];
+  }
+
+  return data;
 }

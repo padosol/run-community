@@ -449,3 +449,77 @@
 - [x] Git Push (완료)
 
 ---
+
+### [2025-12-29] 유지보수 내역
+
+#### 작업 ID: MT-20251229-011
+
+#### 작업 개요
+
+- **작업 유형**: 기능개발
+- **우선순위**: 보통
+- **예상 소요 시간**: 30분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**: 검색엔진에 사이트가 노출되지 않음 (SEO 미적용)
+- **영향 범위**: 전체 사이트 검색엔진 최적화
+- **해결 방안**:
+  1. 루트 레이아웃에 기본 메타데이터 확장 (OpenGraph, keywords, authors)
+  2. 게시글 상세 페이지에 동적 메타데이터 생성 (`generateMetadata`)
+  3. `sitemap.ts` 생성 - 모든 게시글 URL 동적 생성
+  4. `robots.ts` 생성 - 크롤러 규칙 정의
+  5. SEO용 헬퍼 함수 추가 (`getPostById`, `getAllPostsForSitemap`)
+
+#### 변경 파일 목록
+
+- [x] src/app/layout.tsx - 메타데이터 확장
+- [x] src/app/posts/[id]/page.tsx - generateMetadata 추가
+- [x] src/app/sitemap.ts (신규 생성)
+- [x] src/app/robots.ts (신규 생성)
+- [x] src/app/\_actions/post.ts - SEO 헬퍼 함수 추가
+- [x] .env.local - NEXT_PUBLIC_SITE_URL 추가
+
+#### 테스트 계획
+
+- [x] /sitemap.xml 접근 시 모든 게시글 URL 표시 확인
+- [x] /robots.txt 접근 시 크롤러 규칙 표시 확인
+- [x] 게시글 상세 페이지에서 동적 메타데이터 적용 확인
+- [x] 빌드 성공 확인
+
+#### 상태
+
+- [x] 내역서 작성
+- [x] 유지보수 진행
+- [x] 검증 완료
+- [x] Git Push (완료)
+
+#### 구현 세부사항
+
+**1. 메타데이터 (layout.tsx)**
+```typescript
+export const metadata: Metadata = {
+  title: { default: 'Blue Circle', template: '%s | Blue Circle' },
+  description: 'Blue Circle 커뮤니티. 자신을 마음껏 표현하세요.',
+  keywords: ['커뮤니티', '게시판', 'Blue Circle', '자유게시판'],
+  metadataBase: new URL('https://bluecircle.padosol.com'),
+  openGraph: { type: 'website', locale: 'ko_KR', siteName: 'Blue Circle' },
+  robots: { index: true, follow: true },
+};
+```
+
+**2. 동적 메타데이터 (posts/[id]/page.tsx)**
+- 게시글 제목과 내용을 메타데이터에 반영
+- OpenGraph article 타입 적용
+
+**3. Sitemap**
+- 홈페이지 (priority: 1, daily)
+- 글쓰기 페이지 (priority: 0.5, monthly)
+- 모든 게시글 (priority: 0.8, weekly)
+
+**4. Robots**
+- 허용: `/`
+- 차단: `/api/`, `/sign-in/`, `/sign-up/`
+
+---

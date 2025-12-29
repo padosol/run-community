@@ -17,8 +17,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Blue circle", // Changed title
-  description: "Blue circle community. 자신을 마음껏 표현 하세요.", // Changed description
+  title: {
+    default: 'Blue Circle',
+    template: '%s | Blue Circle',
+  },
+  description: 'Blue Circle 커뮤니티. 자신을 마음껏 표현하세요.',
+  keywords: ['커뮤니티', '게시판', 'Blue Circle', '자유게시판'],
+  authors: [{ name: 'Blue Circle' }],
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bluecircle.padosol.com'),
+  openGraph: {
+    type: 'website',
+    locale: 'ko_KR',
+    siteName: 'Blue Circle',
+    title: 'Blue Circle',
+    description: 'Blue Circle 커뮤니티. 자신을 마음껏 표현하세요.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({
@@ -28,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="ko">
         <body
           className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
         >

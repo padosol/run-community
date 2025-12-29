@@ -9,6 +9,37 @@ import { ko } from "date-fns/locale";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CATEGORIES, CategoryKey } from "@/lib/constants/category";
+import { getPostById } from "@/app/_actions/post";
+import { Metadata } from "next";
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getPostById(id);
+
+  if (!post) {
+    return {
+      title: '게시글을 찾을 수 없습니다',
+    };
+  }
+
+  const title = post.title || post.content.substring(0, 50);
+  const description = post.content.substring(0, 160).replace(/\n/g, ' ');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      publishedTime: post.created_at,
+    },
+  };
+}
 
 export default async function PostDetailPage({
   params,
