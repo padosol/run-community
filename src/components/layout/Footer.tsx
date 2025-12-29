@@ -28,7 +28,12 @@ export default function Footer() {
             <a href="#" className="hover:text-[#d7dadc] transition-colors">
               개인정보처리방침
             </a>
-            <a href="#" className="hover:text-[#d7dadc] transition-colors">
+            <a 
+              href="https://docs.google.com/forms/d/e/1FAIpQLScgKTgxpQCvFUXfCBXTu-gfmrorGUsIxbp0oIfmj7MePhT1BA/viewform?usp=dialog" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="hover:text-[#d7dadc] transition-colors"
+            >
               문의하기
             </a>
           </div>
