@@ -18,6 +18,8 @@ type Post = {
   upvotes: number;
   downvotes: number;
   views: number;
+  author_nickname?: string;
+  author_avatar?: string | null;
 };
 
 interface PostListProps {
@@ -102,7 +104,10 @@ export default function PostList({ initialPosts }: PostListProps) {
                 <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
                   <span className="text-[#818384] text-xs">
                     Posted by u/
-                    {post.user_id ? post.user_id.substring(0, 8) : "익명"}
+                    {post.author_nickname ||
+                      (post.user_id
+                        ? `User_${post.user_id.substring(5, 11)}`
+                        : "익명")}
                   </span>
                   <span className="text-[#818384] text-xs">•</span>
                   <span className="text-[#818384] text-xs">

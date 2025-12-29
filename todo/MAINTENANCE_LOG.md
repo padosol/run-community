@@ -314,6 +314,79 @@
 
 ---
 
+### [2024-12-29] 유지보수 내역
+
+#### 작업 ID: MT-20241229-001
+
+#### 작업 개요
+
+- **작업 유형**: 기능개발
+- **우선순위**: 높음
+- **예상 소요 시간**: 40분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**: 게시글/댓글에서 사용자 닉네임이 user_id 앞 8자로 표시됨
+- **해결 방안**: 자체 users 테이블 생성 후 Clerk Webhook으로 사용자 동기화, JOIN으로 닉네임 조회
+
+#### 변경 파일 목록
+
+- [x] supabase/migrations/0011_create_users_table.sql
+- [x] src/app/api/webhooks/clerk/route.ts
+- [x] src/app/\_actions/post.ts
+- [x] src/app/posts/[id]/page.tsx
+- [x] src/components/posts/PostList.tsx
+- [x] src/components/comments/CommentItem.tsx
+- [x] docs/SCHEMA.md
+
+#### 진행 상태
+
+- [x] 내역서 작성
+- [x] 1단계: users 테이블 마이그레이션
+- [x] 2단계: Clerk Webhook API
+- [x] 3단계: 기존 사용자 마이그레이션 SQL
+- [x] 4단계: 게시글 조회 수정
+- [x] 5단계: 댓글 조회 수정
+- [x] 6단계: UI 닉네임 표시
+- [x] 7단계: 문서 업데이트
+- [x] 8단계: 외래키 에러 수정 (ensureUserExists 추가)
+- [x] 검증 완료
+- [x] Git Push
+
+#### 변경 파일 목록 (최종)
+
+- [x] supabase/migrations/0011_create_users_table.sql
+- [x] src/app/api/webhooks/clerk/route.ts
+- [x] src/app/\_actions/post.ts
+- [x] src/app/\_actions/comment.ts
+- [x] src/lib/clerk/server.ts
+- [x] src/app/posts/[id]/page.tsx
+- [x] src/components/posts/PostList.tsx
+- [x] src/components/comments/CommentItem.tsx
+- [x] docs/SCHEMA.md
+
+#### 최종 완료 (2024-12-29)
+
+**완료된 작업:**
+
+- users 테이블 마이그레이션 생성 (`0011_create_users_table.sql`)
+- Clerk Webhook API 라우트 생성 (`/api/webhooks/clerk`)
+- 게시글/댓글 조회 시 users 테이블 JOIN (fallback 처리 포함)
+- PostList, PostDetail, CommentItem에서 닉네임 표시
+- svix 패키지 설치 완료
+- Supabase users 테이블 생성 및 외래키 적용 완료
+- **외래키 에러 수정**: `ensureUserExists()` 함수 추가
+  - 게시글/댓글 작성 전 users 테이블에 사용자 자동 등록
+  - Webhook 미동작 시에도 정상 작동
+
+**향후 개선 사항 (선택):**
+
+- Clerk에서 닉네임 변경 시 user.updated Webhook으로 동기화
+- ngrok + Clerk Webhook 연동 테스트
+
+---
+
 ## 템플릿
 
 아래 템플릿을 복사하여 새로운 유지보수 내역을 추가하세요.
