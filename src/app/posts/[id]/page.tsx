@@ -9,46 +9,12 @@ import { ko } from "date-fns/locale";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CATEGORIES, CategoryKey } from "@/lib/constants/category";
-import { getPostById } from "@/app/_actions/post";
 import { Metadata } from "next";
+import { cache } from "react";
 
-type Props = {
-  params: Promise<{ id: string }>;
-};
-
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = await params;
-  const post = await getPostById(id);
-
-  if (!post) {
-    return {
-      title: '게시글을 찾을 수 없습니다',
-    };
-  }
-
-  const title = post.title || post.content.substring(0, 50);
-  const description = post.content.substring(0, 160).replace(/\n/g, ' ');
-
-  return {
-    title,
-    description,
-    openGraph: {
-      title,
-      description,
-      type: 'article',
-      publishedTime: post.created_at,
-    },
-  };
-}
-
-export default async function PostDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+// 캐시된 게시글 조회 함수 (generateMetadata와 페이지 컴포넌트 간 중복 쿼리 방지)
+const getPostWithComments = cache(async (id: string) => {
   const supabase = await createClient();
-  const currentUserId = await getCurrentUser();
 
   // 먼저 users 테이블 JOIN 시도
   let { data: post, error: postError } = await supabase
@@ -99,62 +65,105 @@ export default async function PostDetailPage({
       .single();
 
     if (fallbackResult.error || !fallbackResult.data) {
-      console.error("Error fetching post:", fallbackResult.error);
-      notFound();
+      return null;
     }
     post = fallbackResult.data;
   }
+
+  return post;
+});
+
+type Props = {
+  params: Promise<{ id: string }>;
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params;
+  const post = await getPostWithComments(id);
+
+  if (!post) {
+    return {
+      title: '게시글을 찾을 수 없습니다',
+    };
+  }
+
+  const title = post.title || post.content.substring(0, 50);
+  const description = post.content.substring(0, 160).replace(/\n/g, ' ');
+
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      publishedTime: post.created_at,
+    },
+  };
+}
+
+export default async function PostDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+  const supabase = await createClient();
+
+  // 캐시된 함수로 게시글 조회 (generateMetadata와 공유)
+  const post = await getPostWithComments(id);
 
   if (!post) {
     notFound();
   }
 
-  // 저장 여부 확인
+  // 현재 사용자 ID 조회
+  const currentUserId = await getCurrentUser();
+
+  // 사용자 관련 쿼리들을 병렬로 실행
   let isSaved = false;
   let hasLiked: number = 0;
-  if (currentUserId) {
-    const { data: bookmark } = await supabase
-      .from("bookmarks")
-      .select("id")
-      .eq("user_id", currentUserId)
-      .eq("post_id", id)
-      .single();
-    isSaved = !!bookmark;
-
-    // 추천 상태 확인
-    const { data: recommendation } = await supabase
-      .from("recommendations")
-      .select("id, vote_type")
-      .eq("user_id", currentUserId)
-      .eq("post_id", id)
-      .single();
-    if (recommendation) {
-      hasLiked = recommendation.vote_type || 0;
-    }
-  }
-
   let currentUserLikedCommentIds: string[] = [];
-  if (currentUserId && post.comments && post.comments.length > 0) {
-    const commentIds = post.comments.map((c: { id: string }) => c.id);
-    const { data: likedComments } = await supabase
-      .from("comment_likes")
-      .select("comment_id")
-      .eq("user_id", currentUserId)
-      .in("comment_id", commentIds);
 
-    if (likedComments) {
-      currentUserLikedCommentIds = likedComments.map((lc) => lc.comment_id);
-    }
+  if (currentUserId) {
+    const commentIds = post.comments?.map((c: { id: string }) => c.id) || [];
+
+    // Promise.all로 병렬 실행 (북마크, 추천, 댓글 좋아요 동시 조회)
+    const [bookmarkResult, recommendationResult, likedCommentsResult] = await Promise.all([
+      supabase
+        .from("bookmarks")
+        .select("id")
+        .eq("user_id", currentUserId)
+        .eq("post_id", id)
+        .single(),
+      supabase
+        .from("recommendations")
+        .select("id, vote_type")
+        .eq("user_id", currentUserId)
+        .eq("post_id", id)
+        .single(),
+      commentIds.length > 0
+        ? supabase
+            .from("comment_likes")
+            .select("comment_id")
+            .eq("user_id", currentUserId)
+            .in("comment_id", commentIds)
+        : Promise.resolve({ data: null }),
+    ]);
+
+    isSaved = !!bookmarkResult.data;
+    hasLiked = recommendationResult.data?.vote_type || 0;
+    currentUserLikedCommentIds = likedCommentsResult.data?.map((lc: { comment_id: string }) => lc.comment_id) || [];
   }
 
-  const { error: updateError } = await supabase
+  // 조회수 증가 (비동기 - 응답 대기 없이 실행)
+  supabase
     .from("posts")
     .update({ views: (post.views || 0) + 1 })
-    .eq("id", id);
-
-  if (updateError) {
-    console.error("Error incrementing view count:", updateError);
-  }
+    .eq("id", id)
+    .then(({ error }) => {
+      if (error) console.error("Error incrementing view count:", error);
+    });
 
   const updatedPost = { ...post, views: (post.views || 0) + 1 };
   const commentCount = updatedPost.comments?.length || 0;
