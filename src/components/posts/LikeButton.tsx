@@ -40,7 +40,7 @@ export default function LikeButton({
 
     let newUpvotes = upvotes;
     let newDownvotes = downvotes;
-    let finalVoteType = newVoteType;
+    let finalVoteType: number = newVoteType;
 
     if (voteType === newVoteType) {
       // 같은 방향 → 취소

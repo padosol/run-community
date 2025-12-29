@@ -20,7 +20,7 @@ export default async function SavedPostsPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto w-full px-2 sm:px-4">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <Link

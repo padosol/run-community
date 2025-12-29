@@ -428,7 +428,7 @@
 
 - **문제 설명**: Footer의 "문의하기" 링크가 연결되지 않음
 - **영향 범위**: Footer 컴포넌트
-- **해결 방안**: 
+- **해결 방안**:
   - Google Forms URL로 링크 연결
   - 새 창에서 열리도록 `target="_blank"` 추가
   - 보안을 위해 `rel="noopener noreferrer"` 추가

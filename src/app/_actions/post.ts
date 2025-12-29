@@ -6,6 +6,7 @@ import { auth } from "@clerk/nextjs/server";
 import { ensureUserExists } from "@/lib/clerk/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { CategoryKey } from "@/lib/constants/category";
 
 // Helper function for image upload
 async function uploadImage(imageFile: File | null): Promise<string | null> {
@@ -65,6 +66,7 @@ export async function createPost(formData: FormData) {
   const rawFormData = {
     title: formData.get("title"),
     content: formData.get("content"),
+    category: formData.get("category"),
     image: formData.get("image"),
   };
 
@@ -79,31 +81,33 @@ export async function createPost(formData: FormData) {
     throw new Error("입력 값이 올바르지 않습니다.");
   }
 
-  const { title, content, image } = validatedFields.data;
+  const { title, content, category, image } = validatedFields.data;
 
   let imageUrl: string | null = null;
   if (image instanceof File && image.size > 0) {
     imageUrl = await uploadImage(image);
   }
 
-  const { error } = await supabase.from("posts").insert({
+  const { data, error } = await supabase.from("posts").insert({
     user_id: userId,
     title,
     content,
+    category,
     image_url: imageUrl,
     // 레거시 컬럼 - 마이그레이션 적용 후 제거 가능
     author_nickname: '',
     password_hash: '',
-  });
+  }).select('id').single();
 
-  if (error) {
+  if (error || !data) {
     console.error("Error creating post:", error);
     console.error("Error details:", JSON.stringify(error, null, 2));
-    throw new Error(`게시글 작성에 실패했습니다: ${error.message || error.code || 'Unknown error'}`);
+    throw new Error(`게시글 작성에 실패했습니다: ${error?.message || error?.code || 'Unknown error'}`);
   }
 
-  revalidatePath("/"); // Revalidate home page to show new post
-  redirect("/"); // Redirect to home page
+  revalidatePath("/");
+  revalidatePath(`/posts/${data.id}`);
+  redirect(`/posts/${data.id}`);
 }
 
 export async function updatePost(postId: string, formData: FormData) {
@@ -118,6 +122,7 @@ export async function updatePost(postId: string, formData: FormData) {
   const rawFormData = {
     title: formData.get("title"),
     content: formData.get("content"),
+    category: formData.get("category"),
     image: formData.get("image"), // This will be the File object or null
     image_clear_signal: formData.get("image_clear_signal") === "true", // Check if signal is present
   };
@@ -133,7 +138,7 @@ export async function updatePost(postId: string, formData: FormData) {
     throw new Error("입력 값이 올바르지 않습니다.");
   }
 
-  const { title, content, image } = validatedFields.data; // image here might be a File or null
+  const { title, content, category, image } = validatedFields.data; // image here might be a File or null
   const image_clear_signal = rawFormData.image_clear_signal;
 
   // 권한 확인: 게시글 작성자만 수정 가능
@@ -169,6 +174,7 @@ export async function updatePost(postId: string, formData: FormData) {
   const updateData: {
     title?: string;
     content?: string;
+    category?: string;
     image_url: string | null;
   } = {
     image_url: imageUrl,
@@ -179,6 +185,9 @@ export async function updatePost(postId: string, formData: FormData) {
   }
   if (content !== undefined) {
     updateData.content = content;
+  }
+  if (category !== undefined) {
+    updateData.category = category;
   }
 
   const { error } = await supabase
@@ -234,7 +243,12 @@ export async function deletePost(postId: string) {
   redirect("/"); // Redirect to home page
 }
 
-export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular' = 'latest') {
+export async function getPosts(
+  page = 1,
+  limit = 10,
+  sortBy: 'latest' | 'popular' = 'latest',
+  category?: CategoryKey | 'all'
+) {
   const supabase = await createServerClient();
   const from = (page - 1) * limit;
   const to = from + limit - 1;
@@ -247,19 +261,25 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
   let query = supabase
     .from('posts')
     .select(`
-      id, 
-      created_at, 
-      user_id, 
-      title, 
-      content, 
-      likes, 
-      upvotes, 
-      downvotes, 
+      id,
+      created_at,
+      user_id,
+      title,
+      content,
+      category,
+      likes,
+      upvotes,
+      downvotes,
       views,
       users!fk_posts_user(username, avatar_url),
       comments(id)
     `)
     .order(orderBy, { ascending });
+
+  // 카테고리 필터 적용
+  if (category && category !== 'all') {
+    query = query.eq('category', category);
+  }
 
   // 인기 정렬일 경우 limit 10개로 제한
   if (sortBy === 'popular') {
@@ -275,8 +295,13 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
     console.log('Falling back to basic query (users table not ready):', error.message);
     let fallbackQuery = supabase
       .from('posts')
-      .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views, comments(id)')
+      .select('id, created_at, user_id, title, content, category, likes, upvotes, downvotes, views, comments(id)')
       .order(orderBy, { ascending });
+
+    // 카테고리 필터 적용
+    if (category && category !== 'all') {
+      fallbackQuery = fallbackQuery.eq('category', category);
+    }
 
     if (sortBy === 'popular') {
       fallbackQuery = fallbackQuery.limit(10);
@@ -285,24 +310,29 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
     }
 
     const fallbackResult = await fallbackQuery;
-    
+
     if (fallbackResult.error) {
       console.error('Error fetching posts:', fallbackResult.error);
       throw new Error('게시글을 불러오는 데 실패했습니다.');
     }
-    
-    posts = fallbackResult.data;
+
+    // fallback 결과에 users 속성 추가 (null로 설정)
+    posts = (fallbackResult.data || []).map((post: any) => ({
+      ...post,
+      users: null,
+    })) as typeof posts;
   }
 
   // users 테이블 연결이 안되어 있을 경우를 대비한 fallback
   return (posts || []).map(post => {
     // 댓글 수 계산: comments 배열의 길이 사용
-    const commentCount = Array.isArray((post as any).comments) 
-      ? (post as any).comments.length 
+    const commentCount = Array.isArray((post as any).comments)
+      ? (post as any).comments.length
       : 0;
-    
+
     return {
       ...post,
+      category: (post as any).category || 'free',
       author_username: (post as any).users?.username || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
       author_avatar: (post as any).users?.avatar_url || null,
       comment_count: commentCount,

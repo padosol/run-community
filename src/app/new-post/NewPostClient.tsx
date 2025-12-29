@@ -15,6 +15,7 @@ export default function NewPostClient() {
     const formData = new FormData();
     formData.append('title', data.title);
     formData.append('content', data.content);
+    formData.append('category', data.category);
     if (data.image && data.image[0]) {
       formData.append('image', data.image[0]);
     }
@@ -34,7 +35,7 @@ export default function NewPostClient() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto w-full px-2 sm:px-4">
       {/* Header */}
       <div className="reddit-card mb-3 p-3 border-b-4 border-b-accent">
         <h1 className="text-lg font-medium text-[#d7dadc]">게시글 작성</h1>

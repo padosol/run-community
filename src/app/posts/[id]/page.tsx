@@ -8,6 +8,7 @@ import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { CATEGORIES, CategoryKey } from "@/lib/constants/category";
 
 export default async function PostDetailPage({
   params,
@@ -128,7 +129,7 @@ export default async function PostDetailPage({
   const commentCount = updatedPost.comments?.length || 0;
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto w-full px-2 sm:px-4">
       {/* Back Button */}
       <Link 
         href="/" 
@@ -142,12 +143,15 @@ export default async function PostDetailPage({
 
       {/* Post Card */}
       <article className="reddit-card">
-        <div className="p-3">
+        <div className="p-3 sm:p-4">
           {/* Meta Info with Save and Views */}
           <div className="post-meta flex items-center justify-between gap-1 mb-2 flex-wrap">
             <div className="flex items-center gap-1 flex-wrap">
-              <span className="tag-accent">
-                커뮤니티
+              <span
+                className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                style={{ backgroundColor: CATEGORIES[(updatedPost.category as CategoryKey) || 'free']?.color || '#818384' }}
+              >
+                {CATEGORIES[(updatedPost.category as CategoryKey) || 'free']?.label || '자유게시판'}
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">

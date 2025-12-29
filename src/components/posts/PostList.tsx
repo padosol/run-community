@@ -6,6 +6,7 @@ import { ko } from "date-fns/locale";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
+import { CATEGORIES, CategoryKey } from "@/lib/constants/category";
 
 // Define the type for a single post
 type Post = {
@@ -14,6 +15,7 @@ type Post = {
   user_id: string;
   title: string | null;
   content: string;
+  category?: CategoryKey;
   likes: number;
   upvotes: number;
   downvotes: number;
@@ -83,9 +85,18 @@ export default function PostList({ initialPosts, sortBy = 'latest' }: PostListPr
           <Link key={post.id} href={`/posts/${post.id}`} className="block">
             <article className="reddit-card hover:border-[#818384]">
               {/* Content Section */}
-              <div className="flex-1 p-2 min-w-0">
+              <div className="flex-1 p-2 sm:p-3 min-w-0">
                 {/* Meta Info */}
                 <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
+                  {/* Category Tag */}
+                  {post.category && CATEGORIES[post.category] && (
+                    <span
+                      className="px-2 py-0.5 rounded-full text-xs font-medium text-white"
+                      style={{ backgroundColor: CATEGORIES[post.category].color }}
+                    >
+                      {CATEGORIES[post.category].label}
+                    </span>
+                  )}
                   <span className="text-[#818384] text-xs">
                     Posted by{" "}
                     {post.author_username ||

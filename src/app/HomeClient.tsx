@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import PostList from '@/components/posts/PostList';
 import Link from 'next/link';
 import { getPosts } from '@/app/_actions/post';
+import { CATEGORY_LIST, CategoryKey } from '@/lib/constants/category';
 
 type Post = {
   id: string;
@@ -11,6 +12,7 @@ type Post = {
   user_id: string;
   title: string | null;
   content: string;
+  category: CategoryKey;
   likes: number;
   upvotes: number;
   downvotes: number;
@@ -25,6 +27,7 @@ interface HomeClientProps {
 
 export default function HomeClient({ initialPosts }: HomeClientProps) {
   const [sortBy, setSortBy] = useState<'latest' | 'popular'>('popular');
+  const [category, setCategory] = useState<CategoryKey | 'all'>('all');
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -33,7 +36,7 @@ export default function HomeClient({ initialPosts }: HomeClientProps) {
       setIsLoading(true);
       try {
         const limit = sortBy === 'popular' ? 10 : 5;
-        const fetchedPosts = await getPosts(1, limit, sortBy);
+        const fetchedPosts = await getPosts(1, limit, sortBy, category);
         setPosts(fetchedPosts || []);
       } catch (error) {
         console.error('Error fetching posts:', error);
@@ -42,50 +45,82 @@ export default function HomeClient({ initialPosts }: HomeClientProps) {
       }
     };
 
-    // 정렬 변경 시 서버에서 데이터 가져오기
+    // 정렬/카테고리 변경 시 서버에서 데이터 가져오기
     fetchPosts();
-  }, [sortBy]);
+  }, [sortBy, category]);
 
   return (
-    <div className="max-w-3xl mx-auto">
+    <div className="max-w-3xl mx-auto w-full px-2 sm:px-4">
       {/* Sort Tabs */}
-      <div className="reddit-card mb-3 p-2 flex items-center gap-2">
-        <button
-          onClick={() => setSortBy('popular')}
-          className={`action-button rounded-full transition-colors ${
-            sortBy === 'popular'
-              ? 'bg-[#272729] !text-[#d7dadc]'
-              : 'hover:bg-[#272729]'
-          }`}
-        >
-          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-          </svg>
-          인기
-        </button>
-        <button
-          onClick={() => setSortBy('latest')}
-          className={`action-button rounded-full transition-colors ${
-            sortBy === 'latest'
-              ? 'bg-[#272729] !text-[#d7dadc]'
-              : 'hover:bg-[#272729]'
-          }`}
-        >
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="reddit-card mb-3 p-2">
+        <div className="flex items-center gap-2 mb-2">
+          <button
+            onClick={() => setSortBy('popular')}
+            className={`action-button rounded-full transition-colors ${
+              sortBy === 'popular'
+                ? 'bg-[#272729] !text-[#d7dadc]'
+                : 'hover:bg-[#272729]'
+            }`}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          최신
-        </button>
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+            인기
+          </button>
+          <button
+            onClick={() => setSortBy('latest')}
+            className={`action-button rounded-full transition-colors ${
+              sortBy === 'latest'
+                ? 'bg-[#272729] !text-[#d7dadc]'
+                : 'hover:bg-[#272729]'
+            }`}
+          >
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            최신
+          </button>
+        </div>
+
+        {/* Category Filter */}
+        <div className="flex items-center gap-2 flex-wrap border-t border-[#343536] pt-2">
+          <button
+            onClick={() => setCategory('all')}
+            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+              category === 'all'
+                ? 'bg-accent text-white'
+                : 'bg-[#272729] text-[#818384] hover:text-[#d7dadc]'
+            }`}
+          >
+            전체
+          </button>
+          {CATEGORY_LIST.map((cat) => (
+            <button
+              key={cat.key}
+              onClick={() => setCategory(cat.key)}
+              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer ${
+                category !== cat.key ? 'hover:text-[#d7dadc]' : ''
+              }`}
+              style={
+                category === cat.key
+                  ? { backgroundColor: cat.color, color: 'white' }
+                  : { backgroundColor: '#272729', color: '#818384' }
+              }
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Loading State */}

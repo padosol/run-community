@@ -11,7 +11,7 @@ import Link from "next/link";
 export default function Header() {
   return (
     <header className="bg-[#1a1a1b] border-b border-[#343536] sticky top-0 z-50">
-      <div className="container mx-auto px-4 h-12 flex justify-between items-center">
+      <div className="container mx-auto px-2 sm:px-4 h-12 flex justify-between items-center gap-2">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
           <div className="w-8 h-8 icon-accent rounded-full">
@@ -53,11 +53,11 @@ export default function Header() {
         </div>
 
         {/* Right Actions */}
-        <nav className="flex items-center gap-2">
+        <nav className="flex items-center gap-1 sm:gap-2">
           <SignedIn>
             <Link
               href="/saved"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
               title="저장된 게시글"
             >
               <svg
@@ -76,7 +76,7 @@ export default function Header() {
             </Link>
             <Link
               href="/new-post"
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 text-sm text-[#d7dadc] hover:bg-[#272729] rounded-full transition-colors"
             >
               <svg
                 className="w-5 h-5"
@@ -97,12 +97,12 @@ export default function Header() {
 
           <SignedOut>
             <SignInButton mode="modal">
-              <button className="btn-accent px-5 py-1.5 text-sm rounded-full transition-colors">
+              <button className="btn-accent px-3 sm:px-5 py-1.5 text-xs sm:text-sm rounded-full transition-colors">
                 로그인
               </button>
             </SignInButton>
             <SignUpButton mode="modal">
-              <button className="btn-accent-outline px-5 py-1.5 text-sm rounded-full transition-colors hidden sm:block">
+              <button className="btn-accent-outline px-3 sm:px-5 py-1.5 text-xs sm:text-sm rounded-full transition-colors hidden sm:block">
                 회원가입
               </button>
             </SignUpButton>

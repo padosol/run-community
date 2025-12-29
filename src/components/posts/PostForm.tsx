@@ -1,10 +1,12 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { PostFormValues, postSchema } from '@/lib/validation/post';
 import { useState } from 'react';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/nextjs';
+import { DEFAULT_CATEGORY } from '@/lib/constants/category';
+import CategorySelect from '@/components/common/CategorySelect';
 
 interface PostFormProps {
   initialValues?: Partial<PostFormValues>;
@@ -22,11 +24,15 @@ export default function PostForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { errors },
     reset,
   } = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
-    defaultValues: initialValues,
+    defaultValues: {
+      ...initialValues,
+      category: initialValues?.category || DEFAULT_CATEGORY,
+    },
   });
 
   const [imagePreview, setImagePreview] = useState<string | null>(initialValues?.image instanceof File ? URL.createObjectURL(initialValues.image) : null);
@@ -45,6 +51,22 @@ export default function PostForm({
     <>
       <SignedIn>
         <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
+          {/* Category */}
+          <div>
+            <label className="block text-sm text-[#818384] mb-2">카테고리</label>
+            <Controller
+              name="category"
+              control={control}
+              render={({ field }) => (
+                <CategorySelect
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.category?.message}
+                />
+              )}
+            />
+          </div>
+
           {/* Title */}
           <div>
             <input

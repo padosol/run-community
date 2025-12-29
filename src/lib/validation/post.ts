@@ -1,4 +1,7 @@
 import { z } from 'zod';
+import { CATEGORIES, CategoryKey } from '@/lib/constants/category';
+
+const categoryValues = Object.keys(CATEGORIES) as [CategoryKey, ...CategoryKey[]];
 
 export const postSchema = z.object({
   title: z
@@ -9,6 +12,9 @@ export const postSchema = z.object({
     .string()
     .min(10, '내용은 10자 이상이어야 합니다.')
     .max(5000, '내용은 5000자 이하여야 합니다.'),
+  category: z.enum(categoryValues, {
+    message: '카테고리를 선택해주세요.',
+  }),
   image: z
     .any()
     .optional(), // File object for image upload
@@ -28,6 +34,7 @@ export const postUpdateSchema = z.object({
     .min(10, '내용은 10자 이상이어야 합니다.')
     .max(5000, '내용은 5000자 이하여야 합니다.')
     .optional(),
+  category: z.enum(categoryValues).optional(),
   image: z
     .any()
     .optional(), // File object for image upload

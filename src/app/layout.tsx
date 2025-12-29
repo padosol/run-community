@@ -34,7 +34,9 @@ export default function RootLayout({
         >
           <Toaster /> {/* Add Toaster component here */}
           <Header />
-          <main className="flex-grow container mx-auto p-4">{children}</main>
+          <main className="grow container mx-auto px-2 sm:px-4 py-4">
+            {children}
+          </main>
           <Footer />
         </body>
       </html>

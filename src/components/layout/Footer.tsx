@@ -2,7 +2,7 @@
 export default function Footer() {
   return (
     <footer className="bg-[#1a1a1b] border-t border-[#343536] mt-8">
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           {/* Logo & Copyright */}
           <div className="flex items-center gap-2">
@@ -21,7 +21,7 @@ export default function Footer() {
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-6 text-xs text-[#818384]">
+          <div className="flex items-center gap-3 sm:gap-6 text-xs text-[#818384] flex-wrap justify-center md:justify-start">
             <a href="#" className="hover:text-[#d7dadc] transition-colors">
               이용약관
             </a>
