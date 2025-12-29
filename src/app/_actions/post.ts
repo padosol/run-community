@@ -234,13 +234,17 @@ export async function deletePost(postId: string) {
   redirect("/"); // Redirect to home page
 }
 
-export async function getPosts(page = 1, limit = 10) {
+export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular' = 'latest') {
   const supabase = await createServerClient();
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
+  // 정렬 기준 설정
+  const orderBy = sortBy === 'popular' ? 'upvotes' : 'created_at';
+  const ascending = false; // 둘 다 내림차순
+
   // 먼저 users 테이블 JOIN 시도
-  let { data: posts, error } = await supabase
+  let query = supabase
     .from('posts')
     .select(`
       id, 
@@ -254,17 +258,32 @@ export async function getPosts(page = 1, limit = 10) {
       views,
       users!fk_posts_user(username, avatar_url)
     `)
-    .order('created_at', { ascending: false })
-    .range(from, to);
+    .order(orderBy, { ascending });
+
+  // 인기 정렬일 경우 limit 10개로 제한
+  if (sortBy === 'popular') {
+    query = query.limit(10);
+  } else {
+    query = query.range(from, to);
+  }
+
+  let { data: posts, error } = await query;
 
   // users 테이블이 없거나 외래키가 없으면 기본 쿼리로 fallback
   if (error) {
     console.log('Falling back to basic query (users table not ready):', error.message);
-    const fallbackResult = await supabase
+    let fallbackQuery = supabase
       .from('posts')
       .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views')
-      .order('created_at', { ascending: false })
-      .range(from, to);
+      .order(orderBy, { ascending });
+
+    if (sortBy === 'popular') {
+      fallbackQuery = fallbackQuery.limit(10);
+    } else {
+      fallbackQuery = fallbackQuery.range(from, to);
+    }
+
+    const fallbackResult = await fallbackQuery;
     
     if (fallbackResult.error) {
       console.error('Error fetching posts:', fallbackResult.error);
