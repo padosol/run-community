@@ -162,7 +162,7 @@ export default async function PostDetailPage({
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">
-                Posted by u/{(updatedPost.author as any)?.username || (updatedPost.user_id ? `User_${updatedPost.user_id.substring(5, 11)}` : '익명')}
+                Posted by {(updatedPost.author as any)?.username || (updatedPost.user_id ? `User_${updatedPost.user_id.substring(5, 11)}` : '익명')}
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">
@@ -226,6 +226,7 @@ export default async function PostDetailPage({
       <div className="reddit-card mt-3">
         <CommentList
           postId={updatedPost.id}
+          postUserId={updatedPost.user_id || ""}
           comments={updatedPost.comments || []}
           currentUserLikedCommentIds={currentUserLikedCommentIds}
         />

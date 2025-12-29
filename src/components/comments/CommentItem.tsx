@@ -39,6 +39,7 @@ interface Comment {
 interface CommentItemProps {
   comment: Comment;
   postId: string;
+  postUserId: string;
   isReply?: boolean;
   currentUserLikedCommentIds?: string[];
 }
@@ -46,6 +47,7 @@ interface CommentItemProps {
 export default function CommentItem({
   comment,
   postId,
+  postUserId,
   isReply = false,
   currentUserLikedCommentIds = [],
 }: CommentItemProps) {
@@ -60,6 +62,7 @@ export default function CommentItem({
   const initialLikes = comment.likes;
   const initialHasLiked = currentUserLikedCommentIds.includes(comment.id);
   const isOwner = currentUserId === comment.user_id;
+  const isAuthor = comment.user_id === postUserId;
 
   const handleDeleteClick = () => {
     if (!isOwner) {
@@ -136,8 +139,13 @@ export default function CommentItem({
       <div className="flex justify-between items-center text-xs mb-2">
         <div className="flex items-center gap-2 text-[#818384]">
           <span className="text-[#d7dadc]">
-            u/{comment.commenter?.username || (comment.user_id ? `User_${comment.user_id.substring(5, 11)}` : "익명")}
+            {comment.commenter?.username || (comment.user_id ? `User_${comment.user_id.substring(5, 11)}` : "익명")}
           </span>
+          {isAuthor && (
+            <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-accent text-white rounded-full">
+              작성자
+            </span>
+          )}
           <span>•</span>
           <span>
             {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: ko })}
@@ -212,6 +220,7 @@ export default function CommentItem({
               key={reply.id}
               comment={reply}
               postId={postId}
+              postUserId={postUserId}
               isReply={true}
               currentUserLikedCommentIds={currentUserLikedCommentIds}
             />

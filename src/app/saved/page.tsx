@@ -77,7 +77,7 @@ export default async function SavedPostsPage() {
                   {/* Meta Info */}
                   <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
                     <span className="text-[#818384] text-xs">
-                      Posted by u/
+                      Posted by{" "}
                       {post.user_id ? post.user_id.substring(0, 8) : "익명"}
                     </span>
                     <span className="text-[#818384] text-xs">•</span>

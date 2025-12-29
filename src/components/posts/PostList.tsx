@@ -103,7 +103,7 @@ export default function PostList({ initialPosts }: PostListProps) {
                 {/* Meta Info */}
                 <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
                   <span className="text-[#818384] text-xs">
-                    Posted by u/
+                    Posted by{" "}
                     {post.author_username ||
                       (post.user_id
                         ? `User_${post.user_id.substring(5, 11)}`

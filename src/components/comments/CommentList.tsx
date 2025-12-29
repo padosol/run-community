@@ -26,12 +26,14 @@ interface Comment {
 
 interface CommentListProps {
   postId: string;
+  postUserId: string;
   comments: Comment[];
   currentUserLikedCommentIds?: string[];
 }
 
 export default function CommentList({
   postId,
+  postUserId,
   comments,
   currentUserLikedCommentIds = [],
 }: CommentListProps) {
@@ -157,6 +159,7 @@ export default function CommentList({
               key={comment.id}
               comment={comment}
               postId={postId}
+              postUserId={postUserId}
               currentUserLikedCommentIds={currentUserLikedCommentIds}
             />
           ))}
