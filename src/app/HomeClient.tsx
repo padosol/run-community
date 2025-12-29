@@ -24,15 +24,15 @@ interface HomeClientProps {
 }
 
 export default function HomeClient({ initialPosts }: HomeClientProps) {
-  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [sortBy, setSortBy] = useState<'latest' | 'popular'>('popular');
+  const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchPosts = async () => {
       setIsLoading(true);
       try {
-        const limit = sortBy === 'popular' ? 10 : 10;
+        const limit = sortBy === 'popular' ? 10 : 5;
         const fetchedPosts = await getPosts(1, limit, sortBy);
         setPosts(fetchedPosts || []);
       } catch (error) {
@@ -118,7 +118,7 @@ export default function HomeClient({ initialPosts }: HomeClientProps) {
 
       {/* Post List */}
       {!isLoading && posts.length > 0 ? (
-        <PostList initialPosts={posts} />
+        <PostList initialPosts={posts} sortBy={sortBy} />
       ) : !isLoading && posts.length === 0 ? (
         <div className="reddit-card p-8 text-center">
           <div className="text-[#818384] mb-4">

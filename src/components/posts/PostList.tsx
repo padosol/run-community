@@ -24,12 +24,13 @@ type Post = {
 
 interface PostListProps {
   initialPosts: Post[];
+  sortBy?: 'latest' | 'popular';
 }
 
-export default function PostList({ initialPosts }: PostListProps) {
+export default function PostList({ initialPosts, sortBy = 'latest' }: PostListProps) {
   const [posts, setPosts] = useState<Post[]>(initialPosts);
   const [page, setPage] = useState(2);
-  const [hasMore, setHasMore] = useState(true);
+  const [hasMore, setHasMore] = useState(sortBy === 'latest'); // 인기는 무한스크롤 비활성화
   const [isLoading, setIsLoading] = useState(false);
 
   const { ref, inView } = useInView({
@@ -37,15 +38,27 @@ export default function PostList({ initialPosts }: PostListProps) {
     triggerOnce: false,
   });
 
+  // sortBy가 변경되면 posts와 상태 초기화
+  useEffect(() => {
+    setPosts(initialPosts);
+    setPage(2);
+    setHasMore(sortBy === 'latest');
+  }, [initialPosts, sortBy]);
+
   const loadMorePosts = async () => {
-    if (isLoading || !hasMore) return;
+    if (isLoading || !hasMore || sortBy !== 'latest') return;
     setIsLoading(true);
 
     try {
-      const newPosts = await getPosts(page, 10);
+      const limit = 5; // 최신 정렬일 때 5개씩
+      const newPosts = await getPosts(page, limit, sortBy);
       if (newPosts && newPosts.length > 0) {
         setPosts((prevPosts) => [...prevPosts, ...newPosts]);
         setPage((prevPage) => prevPage + 1);
+        // 5개 미만이면 더 이상 없음
+        if (newPosts.length < limit) {
+          setHasMore(false);
+        }
       } else {
         setHasMore(false);
       }
