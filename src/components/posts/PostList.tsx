@@ -20,6 +20,7 @@ type Post = {
   views: number;
   author_username?: string;
   author_avatar?: string | null;
+  comment_count?: number;
 };
 
 interface PostListProps {
@@ -80,37 +81,7 @@ export default function PostList({ initialPosts, sortBy = 'latest' }: PostListPr
       <div className="space-y-3">
         {posts.map((post) => (
           <Link key={post.id} href={`/posts/${post.id}`} className="block">
-            <article className="reddit-card flex hover:border-[#818384]">
-              {/* Vote Section */}
-              <div className="flex flex-col items-center justify-between py-2 px-2 bg-[#161617] rounded-l min-w-[40px]">
-                {/* Upvote - 상단 */}
-                <div className="flex flex-col items-center">
-                  <svg
-                    className="w-4 h-4 text-[#818384]"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 4l-8 8h5v8h6v-8h5z" />
-                  </svg>
-                  <span className="text-xs font-bold text-[#d7dadc]">
-                    {post.upvotes || 0}
-                  </span>
-                </div>
-                {/* Downvote - 하단 */}
-                <div className="flex flex-col items-center">
-                  <span className="text-xs font-bold text-[#d7dadc]">
-                    {post.downvotes || 0}
-                  </span>
-                  <svg
-                    className="w-4 h-4 text-[#818384]"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M12 20l8-8h-5V4H9v8H4z" />
-                  </svg>
-                </div>
-              </div>
-
+            <article className="reddit-card hover:border-[#818384]">
               {/* Content Section */}
               <div className="flex-1 p-2 min-w-0">
                 {/* Meta Info */}
@@ -132,17 +103,22 @@ export default function PostList({ initialPosts, sortBy = 'latest' }: PostListPr
                 </div>
 
                 {/* Title */}
-                <h2 className="text-lg font-medium text-[#d7dadc] mb-1 line-clamp-2">
+                <h2 className="text-lg font-medium text-[#d7dadc] mb-2 line-clamp-2">
                   {post.title || post.content.split("\n")[0]}
                 </h2>
 
-                {/* Content Preview */}
-                <p className="text-sm text-[#818384] line-clamp-2 mb-2">
-                  {post.content}
-                </p>
-
-                {/* Action Buttons */}
+                {/* Action Buttons - 좋아요, 댓글, 조회수 */}
                 <div className="flex items-center gap-1 -ml-2">
+                  <span className="action-button">
+                    <svg
+                      className="w-4 h-4"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+                    </svg>
+                    {post.upvotes || 0}
+                  </span>
                   <span className="action-button">
                     <svg
                       className="w-4 h-4"
@@ -157,7 +133,7 @@ export default function PostList({ initialPosts, sortBy = 'latest' }: PostListPr
                         d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
                       />
                     </svg>
-                    댓글
+                    {post.comment_count || 0}
                   </span>
                   <span className="action-button">
                     <svg

@@ -256,7 +256,8 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
       upvotes, 
       downvotes, 
       views,
-      users!fk_posts_user(username, avatar_url)
+      users!fk_posts_user(username, avatar_url),
+      comments(id)
     `)
     .order(orderBy, { ascending });
 
@@ -274,7 +275,7 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
     console.log('Falling back to basic query (users table not ready):', error.message);
     let fallbackQuery = supabase
       .from('posts')
-      .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views')
+      .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views, comments(id)')
       .order(orderBy, { ascending });
 
     if (sortBy === 'popular') {
@@ -294,11 +295,19 @@ export async function getPosts(page = 1, limit = 10, sortBy: 'latest' | 'popular
   }
 
   // users 테이블 연결이 안되어 있을 경우를 대비한 fallback
-  return (posts || []).map(post => ({
-    ...post,
-    author_username: (post as any).users?.username || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
-    author_avatar: (post as any).users?.avatar_url || null,
-  }));
+  return (posts || []).map(post => {
+    // 댓글 수 계산: comments 배열의 길이 사용
+    const commentCount = Array.isArray((post as any).comments) 
+      ? (post as any).comments.length 
+      : 0;
+    
+    return {
+      ...post,
+      author_username: (post as any).users?.username || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
+      author_avatar: (post as any).users?.avatar_url || null,
+      comment_count: commentCount,
+    };
+  });
 }
 
 // username 조회 헬퍼 함수
