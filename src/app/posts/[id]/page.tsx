@@ -18,11 +18,13 @@ export default async function PostDetailPage({
   const supabase = await createClient();
   const currentUserId = await getCurrentUser();
 
-  const { data: post, error: postError } = await supabase
+  // 먼저 users 테이블 JOIN 시도
+  let { data: post, error: postError } = await supabase
     .from("posts")
     .select(
       `
       *,
+      author:users!fk_posts_user(nickname, avatar_url),
       comments(
         id,
         created_at,
@@ -32,15 +34,46 @@ export default async function PostDetailPage({
         image_url,
         link_url,
         link_preview,
-        likes
+        likes,
+        commenter:users!fk_comments_user(nickname, avatar_url)
       )
     `
     )
     .eq("id", id)
     .single();
 
-  if (postError || !post) {
-    console.error("Error fetching post:", postError);
+  // users 테이블이 없거나 외래키가 없으면 기본 쿼리로 fallback
+  if (postError) {
+    console.log("Falling back to basic query:", postError.message);
+    const fallbackResult = await supabase
+      .from("posts")
+      .select(
+        `
+        *,
+        comments(
+          id,
+          created_at,
+          user_id,
+          content,
+          parent_comment_id,
+          image_url,
+          link_url,
+          link_preview,
+          likes
+        )
+      `
+      )
+      .eq("id", id)
+      .single();
+
+    if (fallbackResult.error || !fallbackResult.data) {
+      console.error("Error fetching post:", fallbackResult.error);
+      notFound();
+    }
+    post = fallbackResult.data;
+  }
+
+  if (!post) {
     notFound();
   }
 
@@ -129,7 +162,7 @@ export default async function PostDetailPage({
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">
-                Posted by u/{updatedPost.user_id ? updatedPost.user_id.substring(0, 8) : '익명'}
+                Posted by u/{(updatedPost.author as any)?.nickname || (updatedPost.user_id ? `User_${updatedPost.user_id.substring(5, 11)}` : '익명')}
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">

@@ -3,6 +3,7 @@
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { postSchema, postUpdateSchema } from "@/lib/validation/post";
 import { auth } from "@clerk/nextjs/server";
+import { ensureUserExists } from "@/lib/clerk/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -55,6 +56,9 @@ export async function createPost(formData: FormData) {
   if (!userId) {
     throw new Error("로그인이 필요합니다.");
   }
+
+  // 사용자가 users 테이블에 있는지 확인 (외래키 제약 조건 대비)
+  await ensureUserExists(userId);
 
   const supabase = await createServerClient();
 
@@ -235,16 +239,62 @@ export async function getPosts(page = 1, limit = 10) {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  const { data: posts, error } = await supabase
+  // 먼저 users 테이블 JOIN 시도
+  let { data: posts, error } = await supabase
     .from('posts')
-    .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views')
+    .select(`
+      id, 
+      created_at, 
+      user_id, 
+      title, 
+      content, 
+      likes, 
+      upvotes, 
+      downvotes, 
+      views,
+      users!fk_posts_user(nickname, avatar_url)
+    `)
     .order('created_at', { ascending: false })
     .range(from, to);
 
+  // users 테이블이 없거나 외래키가 없으면 기본 쿼리로 fallback
   if (error) {
-    console.error('Error fetching posts:', error);
-    throw new Error('게시글을 불러오는 데 실패했습니다.');
+    console.log('Falling back to basic query (users table not ready):', error.message);
+    const fallbackResult = await supabase
+      .from('posts')
+      .select('id, created_at, user_id, title, content, likes, upvotes, downvotes, views')
+      .order('created_at', { ascending: false })
+      .range(from, to);
+    
+    if (fallbackResult.error) {
+      console.error('Error fetching posts:', fallbackResult.error);
+      throw new Error('게시글을 불러오는 데 실패했습니다.');
+    }
+    
+    posts = fallbackResult.data;
   }
 
-  return posts;
+  // users 테이블 연결이 안되어 있을 경우를 대비한 fallback
+  return (posts || []).map(post => ({
+    ...post,
+    author_nickname: (post as any).users?.nickname || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
+    author_avatar: (post as any).users?.avatar_url || null,
+  }));
+}
+
+// 닉네임 조회 헬퍼 함수
+export async function getUserNickname(userId: string): Promise<string> {
+  const supabase = await createServerClient();
+  
+  const { data, error } = await supabase
+    .from('users')
+    .select('nickname')
+    .eq('clerk_user_id', userId)
+    .single();
+
+  if (error || !data) {
+    return `User_${userId.substring(5, 11)}`;
+  }
+
+  return data.nickname;
 }

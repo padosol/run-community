@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient as createServerClient } from '@/lib/supabase/server';
 import { commentSchema } from '@/lib/validation/comment';
-import { requireAuth } from '@/lib/clerk/server';
+import { requireAuth, ensureUserExists } from '@/lib/clerk/server';
 import { fetchLinkPreview } from '@/lib/utils/link-preview';
 
 // Helper function for comment image upload
@@ -35,6 +35,9 @@ async function uploadCommentImage(imageFile: File | null): Promise<string | null
 export async function createComment(postId: string, formData: FormData) {
   // 인증 확인
   const userId = await requireAuth();
+  
+  // 사용자가 users 테이블에 있는지 확인 (외래키 제약 조건 대비)
+  await ensureUserExists(userId);
   
   const supabase = await createServerClient();
 
