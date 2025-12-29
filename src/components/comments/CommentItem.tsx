@@ -6,13 +6,13 @@ import { CommentFormValues } from "@/lib/validation/comment";
 import { useAuth } from "@clerk/nextjs";
 import { formatDistanceToNow } from "date-fns";
 import { ko } from "date-fns/locale";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 import CommentForm from "./CommentForm";
 import CommentImage from "./CommentImage";
-import LinkPreview, { SimpleLinkPreview } from "./LinkPreview";
 import CommentLikeButton from "./CommentLikeButton";
+import LinkPreview, { SimpleLinkPreview } from "./LinkPreview";
 
 interface Comment {
   id: string;
@@ -62,10 +62,7 @@ export default function CommentItem({
   const initialLikes = comment.likes;
   const initialHasLiked = currentUserLikedCommentIds.includes(comment.id);
   const isOwner = currentUserId === comment.user_id;
-<<<<<<< HEAD
   const isAuthor = comment.user_id === postUserId;
-=======
->>>>>>> 74c96009dc4c673a647762d578f07864ccd7847b
 
   const handleDeleteClick = () => {
     if (!isOwner) {
@@ -133,8 +130,8 @@ export default function CommentItem({
   return (
     <div
       className={`relative ${
-        isReply 
-          ? "ml-3 pl-2 border-l-2 border-[#343536]" 
+        isReply
+          ? "ml-3 pl-2 border-l-2 border-[#343536]"
           : "p-2 bg-[#1a1a1b] rounded border border-[#343536] hover:border-[#818384] transition-colors"
       }`}
     >
@@ -142,7 +139,10 @@ export default function CommentItem({
       <div className="flex justify-between items-center text-xs mb-2">
         <div className="flex items-center gap-2 text-[#818384]">
           <span className="text-[#d7dadc]">
-            {comment.commenter?.username || (comment.user_id ? `User_${comment.user_id.substring(5, 11)}` : "익명")}
+            {comment.commenter?.username ||
+              (comment.user_id
+                ? `User_${comment.user_id.substring(5, 11)}`
+                : "익명")}
           </span>
           {isAuthor && (
             <span className="inline-flex items-center px-2 py-0.5 text-[10px] font-semibold bg-accent text-white rounded-full">
@@ -151,7 +151,10 @@ export default function CommentItem({
           )}
           <span>•</span>
           <span>
-            {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: ko })}
+            {formatDistanceToNow(new Date(comment.created_at), {
+              addSuffix: true,
+              locale: ko,
+            })}
           </span>
         </div>
         <div className="flex items-center gap-1">
@@ -165,7 +168,9 @@ export default function CommentItem({
           {!isReply && currentUserId && (
             <button
               onClick={() => setShowReplyForm(!showReplyForm)}
-              className={`action-button text-xs ${showReplyForm ? "text-accent" : ""}`}
+              className={`action-button text-xs ${
+                showReplyForm ? "text-accent" : ""
+              }`}
             >
               답글
             </button>
@@ -205,7 +210,10 @@ export default function CommentItem({
       {/* 링크 미리보기 */}
       {comment.link_preview && (
         <div className="mt-2">
-          <LinkPreview preview={comment.link_preview} linkUrl={comment.link_url || undefined} />
+          <LinkPreview
+            preview={comment.link_preview}
+            linkUrl={comment.link_url || undefined}
+          />
         </div>
       )}
 
@@ -249,7 +257,9 @@ export default function CommentItem({
         <div className="fixed inset-0 bg-black bg-opacity-75 flex justify-center items-center p-4 z-50">
           <div className="bg-[#1a1a1b] border border-[#343536] rounded-lg p-4 w-full max-w-xs">
             <h3 className="text-sm font-bold text-[#d7dadc] mb-2">댓글 삭제</h3>
-            <p className="text-[#818384] text-xs mb-3">정말로 이 댓글을 삭제하시겠습니까?</p>
+            <p className="text-[#818384] text-xs mb-3">
+              정말로 이 댓글을 삭제하시겠습니까?
+            </p>
             {error && <p className="text-accent text-xs mb-2">{error}</p>}
             <div className="flex justify-end gap-2">
               <button
