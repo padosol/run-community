@@ -2,11 +2,11 @@
 
 ## 1. `users` 테이블 (New)
 
-- **목적:** Clerk 사용자 정보 저장 및 닉네임 관리
+- **목적:** Clerk 사용자 정보 저장 및 username 관리
 - **컬럼:**
   - `id`: `UUID` (Primary Key, default `gen_random_uuid()`)
   - `clerk_user_id`: `text` (Unique, Clerk 사용자 ID)
-  - `nickname`: `text` (사용자 닉네임)
+  - `username`: `text` (사용자 username - Clerk username 사용)
   - `avatar_url`: `text` (옵션, 프로필 이미지 URL)
   - `email`: `text` (옵션, 이메일)
   - `created_at`: `timestamp with time zone` (default `now()`)

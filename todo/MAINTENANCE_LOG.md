@@ -387,6 +387,46 @@
 
 ---
 
+### [2024-12-29] 유지보수 내역
+
+#### 작업 ID: MT-20241229-002
+
+#### 작업 개요
+
+- **작업 유형**: 리팩토링
+- **우선순위**: 보통
+- **예상 소요 시간**: 20분
+- **담당자**: -
+
+#### 작업 상세
+
+- **문제 설명**: users 테이블에서 nickname 대신 username 사용, first_name/last_name 대신 Clerk username 사용
+- **영향 범위**: users 테이블, Webhook, 게시글/댓글 표시
+- **해결 방안**: 
+  1. DB 마이그레이션으로 nickname → username 컬럼명 변경
+  2. Clerk Webhook에서 username 필드 사용
+  3. 모든 UI에서 username 표시
+
+#### 변경 파일 목록
+
+- [x] supabase/migrations/0012_rename_nickname_to_username.sql
+- [x] src/app/api/webhooks/clerk/route.ts
+- [x] src/lib/clerk/server.ts
+- [x] src/app/\_actions/post.ts
+- [x] src/components/posts/PostList.tsx
+- [x] src/components/comments/CommentItem.tsx
+- [x] src/app/posts/[id]/page.tsx
+- [x] docs/SCHEMA.md
+
+#### 상태
+
+- [x] 내역서 작성
+- [x] 유지보수 진행
+- [x] 검증 완료
+- [ ] Git Push
+
+---
+
 ## 템플릿
 
 아래 템플릿을 복사하여 새로운 유지보수 내역을 추가하세요.

@@ -24,7 +24,7 @@ export default async function PostDetailPage({
     .select(
       `
       *,
-      author:users!fk_posts_user(nickname, avatar_url),
+      author:users!fk_posts_user(username, avatar_url),
       comments(
         id,
         created_at,
@@ -35,7 +35,7 @@ export default async function PostDetailPage({
         link_url,
         link_preview,
         likes,
-        commenter:users!fk_comments_user(nickname, avatar_url)
+        commenter:users!fk_comments_user(username, avatar_url)
       )
     `
     )
@@ -162,7 +162,7 @@ export default async function PostDetailPage({
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">
-                Posted by u/{(updatedPost.author as any)?.nickname || (updatedPost.user_id ? `User_${updatedPost.user_id.substring(5, 11)}` : '익명')}
+                Posted by u/{(updatedPost.author as any)?.username || (updatedPost.user_id ? `User_${updatedPost.user_id.substring(5, 11)}` : '익명')}
               </span>
               <span className="text-[#818384] text-xs">•</span>
               <span className="text-[#818384] text-xs">

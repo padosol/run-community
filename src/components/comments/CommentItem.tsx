@@ -31,7 +31,7 @@ interface Comment {
   likes: number;
   replies?: Comment[];
   commenter?: {
-    nickname: string;
+    username: string;
     avatar_url?: string | null;
   } | null;
 }
@@ -136,7 +136,7 @@ export default function CommentItem({
       <div className="flex justify-between items-center text-xs mb-2">
         <div className="flex items-center gap-2 text-[#818384]">
           <span className="text-[#d7dadc]">
-            u/{comment.commenter?.nickname || (comment.user_id ? `User_${comment.user_id.substring(5, 11)}` : "익명")}
+            u/{comment.commenter?.username || (comment.user_id ? `User_${comment.user_id.substring(5, 11)}` : "익명")}
           </span>
           <span>•</span>
           <span>
