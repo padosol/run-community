@@ -18,7 +18,7 @@ type Post = {
   upvotes: number;
   downvotes: number;
   views: number;
-  author_nickname?: string;
+  author_username?: string;
   author_avatar?: string | null;
 };
 
@@ -104,7 +104,7 @@ export default function PostList({ initialPosts }: PostListProps) {
                 <div className="post-meta flex items-center gap-1 mb-1 flex-wrap">
                   <span className="text-[#818384] text-xs">
                     Posted by u/
-                    {post.author_nickname ||
+                    {post.author_username ||
                       (post.user_id
                         ? `User_${post.user_id.substring(5, 11)}`
                         : "익명")}

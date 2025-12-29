@@ -11,14 +11,15 @@ interface ClerkWebhookEvent {
   data: {
     id: string;
     username?: string | null;
-    first_name?: string | null;
-    last_name?: string | null;
     email_addresses?: Array<{ email_address: string }>;
     image_url?: string | null;
   };
 }
 
 export async function POST(req: Request) {
+  console.log("========== CLERK WEBHOOK RECEIVED ==========");
+  console.log("Timestamp:", new Date().toISOString());
+
   if (!webhookSecret) {
     console.error("CLERK_WEBHOOK_SECRET is not set");
     return NextResponse.json(
@@ -71,33 +72,21 @@ export async function POST(req: Request) {
   // Handle different event types
   switch (event.type) {
     case "user.created": {
-      const {
-        id,
-        username,
-        first_name,
-        last_name,
-        email_addresses,
-        image_url,
-      } = event.data;
+      const { id, username, email_addresses, image_url } = event.data;
 
-      // 닉네임 결정: username > first_name + last_name > "User_" + id 앞 6자
-      let nickname = username;
-      if (!nickname && (first_name || last_name)) {
-        nickname = `${first_name || ""} ${last_name || ""}`.trim();
-      }
-      if (!nickname) {
-        nickname = `User_${id.substring(5, 11)}`;
-      }
+      console.log("event.data:", event.data);
 
+      // username 결정: Clerk username > "User_" + id 앞 6자
+      const finalUsername = username || `User_${id.substring(5, 11)}`;
       const email = email_addresses?.[0]?.email_address || null;
 
       console.log(
-        `Creating user: ${id}, nickname: ${nickname}, email: ${email}`
+        `Creating user: ${id}, username: ${finalUsername}, email: ${email}`
       );
 
       const { error } = await supabase.from("users").insert({
         clerk_user_id: id,
-        nickname,
+        username: finalUsername,
         avatar_url: image_url || null,
         email,
       });
@@ -113,38 +102,27 @@ export async function POST(req: Request) {
         }
       }
 
-      console.log(`User created successfully: ${id} -> ${nickname}`);
+      console.log(`User created successfully: ${id} -> ${finalUsername}`);
       break;
     }
 
     case "user.updated": {
-      const {
-        id,
-        username,
-        first_name,
-        last_name,
-        email_addresses,
-        image_url,
-      } = event.data;
+      const { id, username, email_addresses, image_url } = event.data;
 
-      let nickname = username;
-      if (!nickname && (first_name || last_name)) {
-        nickname = `${first_name || ""} ${last_name || ""}`.trim();
-      }
-      if (!nickname) {
-        nickname = `User_${id.substring(5, 11)}`;
-      }
+      console.log("event.data:", event.data);
 
+      // username 결정: Clerk username > "User_" + id 앞 6자
+      const finalUsername = username || `User_${id.substring(5, 11)}`;
       const email = email_addresses?.[0]?.email_address || null;
 
       console.log(
-        `[user.updated] id: ${id}, nickname: ${nickname}, email: ${email}, image_url: ${image_url}`
+        `[user.updated] id: ${id}, username: ${finalUsername}, email: ${email}, image_url: ${image_url}`
       );
 
       // 먼저 사용자가 존재하는지 확인
       const { data: existingUser, error: selectError } = await supabase
         .from("users")
-        .select("id, clerk_user_id, nickname")
+        .select("id, clerk_user_id, username")
         .eq("clerk_user_id", id)
         .single();
 
@@ -160,7 +138,7 @@ export async function POST(req: Request) {
         const { data: updateData, error: updateError } = await supabase
           .from("users")
           .update({
-            nickname,
+            username: finalUsername,
             avatar_url: image_url || null,
             email,
             updated_at: new Date().toISOString(),
@@ -178,7 +156,7 @@ export async function POST(req: Request) {
         if (updateError) {
           console.error("Error updating user:", updateError);
         } else {
-          console.log(`User updated successfully: ${id} -> ${nickname}`);
+          console.log(`User updated successfully: ${id} -> ${finalUsername}`);
         }
       } else {
         // 사용자가 없으면 INSERT
@@ -186,7 +164,7 @@ export async function POST(req: Request) {
           .from("users")
           .insert({
             clerk_user_id: id,
-            nickname,
+            username: finalUsername,
             avatar_url: image_url || null,
             email,
           })
@@ -202,7 +180,7 @@ export async function POST(req: Request) {
         if (insertError) {
           console.error("Error inserting user:", insertError);
         } else {
-          console.log(`User inserted successfully: ${id} -> ${nickname}`);
+          console.log(`User inserted successfully: ${id} -> ${finalUsername}`);
         }
       }
 

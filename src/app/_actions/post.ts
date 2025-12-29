@@ -252,7 +252,7 @@ export async function getPosts(page = 1, limit = 10) {
       upvotes, 
       downvotes, 
       views,
-      users!fk_posts_user(nickname, avatar_url)
+      users!fk_posts_user(username, avatar_url)
     `)
     .order('created_at', { ascending: false })
     .range(from, to);
@@ -277,18 +277,18 @@ export async function getPosts(page = 1, limit = 10) {
   // users 테이블 연결이 안되어 있을 경우를 대비한 fallback
   return (posts || []).map(post => ({
     ...post,
-    author_nickname: (post as any).users?.nickname || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
+    author_username: (post as any).users?.username || `User_${post.user_id?.substring(5, 11) || 'Unknown'}`,
     author_avatar: (post as any).users?.avatar_url || null,
   }));
 }
 
-// 닉네임 조회 헬퍼 함수
-export async function getUserNickname(userId: string): Promise<string> {
+// username 조회 헬퍼 함수
+export async function getUsername(userId: string): Promise<string> {
   const supabase = await createServerClient();
   
   const { data, error } = await supabase
     .from('users')
-    .select('nickname')
+    .select('username')
     .eq('clerk_user_id', userId)
     .single();
 
@@ -296,5 +296,5 @@ export async function getUserNickname(userId: string): Promise<string> {
     return `User_${userId.substring(5, 11)}`;
   }
 
-  return data.nickname;
+  return data.username;
 }

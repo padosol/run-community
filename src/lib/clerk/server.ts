@@ -27,12 +27,12 @@ export async function ensureUserExists(userId: string) {
     .single();
   
   if (!existingUser) {
-    // users 테이블에 사용자 추가 (기본 닉네임 사용)
+    // users 테이블에 사용자 추가 (기본 username 사용)
     const { error } = await supabase
       .from('users')
       .insert({
         clerk_user_id: userId,
-        nickname: `User_${userId.substring(5, 11)}`,
+        username: `User_${userId.substring(5, 11)}`,
       });
     
     // 23505 = unique constraint violation (동시 요청으로 이미 추가된 경우)
