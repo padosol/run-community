@@ -63,11 +63,11 @@ export default function CommentLikeButton({
       disabled={isLoading}
       className={`
         flex items-center space-x-1 px-2 py-1 rounded text-xs transition-all duration-200
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+        ${isLoading ? 'opacity-50 cursor-not-allowed' : userId ? 'cursor-pointer' : 'cursor-default'}
         ${
           hasLiked
             ? 'text-accent hover:text-accent-hover hover:bg-[#2d2d2e]'
-            : 'text-[#818384] hover:text-accent hover:bg-[#2d2d2e]'
+            : `text-[#818384] ${userId ? 'hover:text-accent hover:bg-[#2d2d2e]' : ''}`
         }
       `}
       aria-label={hasLiked ? '좋아요 취소' : '좋아요'}

@@ -92,8 +92,10 @@ export default function LikeButton({
       <button
         onClick={() => handleVote(1)}
         disabled={isLoading}
-        className={`p-1 transition-colors cursor-pointer ${
-          voteType === 1 ? "text-accent" : "text-[#818384] hover:text-accent"
+        className={`p-1 transition-colors ${
+          isSignedIn ? "cursor-pointer" : "cursor-default"
+        } ${
+          voteType === 1 ? "text-accent" : `text-[#818384] ${isSignedIn ? "hover:text-accent" : ""}`
         } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -123,10 +125,12 @@ export default function LikeButton({
       <button
         onClick={() => handleVote(-1)}
         disabled={isLoading}
-        className={`p-1 transition-colors cursor-pointer ${
+        className={`p-1 transition-colors ${
+          isSignedIn ? "cursor-pointer" : "cursor-default"
+        } ${
           voteType === -1
             ? "text-[#7193ff]"
-            : "text-[#818384] hover:text-[#7193ff]"
+            : `text-[#818384] ${isSignedIn ? "hover:text-[#7193ff]" : ""}`
         } ${isLoading ? "opacity-50 !cursor-not-allowed" : ""}`}
       >
         <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
